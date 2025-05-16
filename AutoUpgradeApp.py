@@ -31,12 +31,12 @@ def load_lang_pack():
         }
     with open(LANG_CONFIG_PATH, 'r', encoding='utf-8') as f:
         lang_dict = json.load(f)
-    lang = locale.getdefaultlocale()[0]
+    lang = locale.getlocale()[0]
     if lang is None:
         lang_key = 'zh'
-    elif lang.startswith('zh'):
+    elif lang.startswith('Chinese (Simplified)_China'):
         lang_key = 'zh'
-    elif lang.startswith('ja'):
+    elif lang.startswith('Japanese'):
         lang_key = 'ja'
     else:
         lang_key = 'en'
@@ -128,9 +128,9 @@ def check_and_update_apps():
                 continue
 
             if col_pos is None:
-                continue  # 未找到表头前不处理
-                          # Do not process before the header is found
-                          # ヘッダーが見つかる前に処理しない
+                continue    # 未找到表头前不处理
+                            # Do not process before the header is found
+                            # ヘッダーが見つかる前に処理しない
 
             # 按表头对齐方式按显示宽度切片
             # Slice by display width according to the header alignment
@@ -200,9 +200,9 @@ def monitor_updates():
         keyboard.send("ctrl+alt+r")
         nowtime = get_current_datetime_string()
         print(LANG_PACK['update_done'].format(nowtime=nowtime))
-        time.sleep(86400)  # 每天检查一次更新（24小时）
-                           # Check for updates once a day (every 24 hours)
-                           # 1日に1回（24時間ごと）アップデートをチェックする
+        time.sleep(86400)   # 每天检查一次更新（24小时）
+                            # Check for updates once a day (every 24 hours)
+                            # 1日に1回（24時間ごと）アップデートをチェックする
 
 def get_current_datetime_string():
     """
