@@ -1,7 +1,6 @@
 import subprocess
 import time
 import os
-import keyboard
 import datetime
 import unicodedata
 import json
@@ -182,8 +181,7 @@ def get_display_width(s):
     width = 0
     for ch in s:
         # 'F'和'W'为宽字符（全角/中日文），其余（包括半角片假名'A'）为1
-        # 'F' and 'W' are wide characters (full-width/Chinese-Japanese-Korean), others (including half-width 
-        # katakana 'A') are 1.
+        # 'F' and 'W' are wide characters (full-width/Chinese-Japanese-Korean), others (including half-width katakana 'A') are 1.
         # 'F'と'W'は幅の広い文字（全角/中日韓）、その他（半角片仮名'A'を含む）は1。
         if unicodedata.east_asian_width(ch) in ('F', 'W'):
             width += 2
@@ -193,11 +191,7 @@ def get_display_width(s):
 
 def monitor_updates():
     while True:
-        # 更新前打开魔法
-        keyboard.send("ctrl+alt+p")
         check_and_update_apps()
-        # 更新后关闭魔法
-        keyboard.send("ctrl+alt+r")
         nowtime = get_current_datetime_string()
         print(LANG_PACK['update_done'].format(nowtime=nowtime))
         time.sleep(86400)   # 每天检查一次更新（24小时）

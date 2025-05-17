@@ -38,7 +38,6 @@
 
 - **monitor_updates()**  
   主循环，每24小时触发一次更新检查。  
-  更新前后发送快捷键。（因众所周知的原因仅在中国大陆使用时可能需要，其他地区不需要可自行删除keyboard.send("ctrl+alt+p")和keyboard.send("ctrl+alt+r")）
 
 - **get_current_datetime_string()**  
   返回当前日期和时间的格式化字符串。
@@ -55,6 +54,7 @@
 3. 根据需要调整 `update_policy.txt` 和 `lang.json` 文件中的内容。
    特别是lang.json里英文与日文版的titles和all_latest的设定由于系统限制未经测试，请自行修改。
 4. 运行脚本时请保持网络连接，以便下载更新。
+5. 如果在中国大陆使用，可能需要使用魔法。
 
 ## update_policy.txt 使用说明
 
@@ -113,7 +113,6 @@ The script is designed to run continuously, checking for updates every 24 hours.
 
 - **monitor_updates()**  
   Main loop, triggers update checks every 24 hours.  
-  Sends hotkeys before and after updates. (In mainland China, this may be necessary for special reasons; in other regions, you can remove `keyboard.send("ctrl+alt+p")` and `keyboard.send("ctrl+alt+r")` if not needed.)
 
 - **get_current_datetime_string()**  
   Returns the formatted current date and time.
@@ -129,6 +128,7 @@ The script is designed to run continuously, checking for updates every 24 hours.
 3. Adjust the contents of `update_policy.txt` and `lang.json` as needed.
    Especially, the `titles` and `all_latest` settings for English and Japanese in lang.json are untested due to system limitations—please modify as necessary.
 4. Keep your network connected while running the script to download updates.
+5. If using in mainland China, magic may be required for special reasons.
 
 ## update_policy.txt Usage
 
@@ -187,7 +187,6 @@ In the above example, Microsoft.Edge and QQ will be excluded from auto-updates, 
 
 - **monitor_updates()**  
   メインループで24時間ごとに更新チェックを実行。  
-  更新前後にホットキーを送信します。（中国本土では特別な理由で必要な場合があります。他の地域では不要な場合、`keyboard.send("ctrl+alt+p")` と `keyboard.send("ctrl+alt+r")` を削除してください。）
 
 - **get_current_datetime_string()**  
   現在の日付と時刻をフォーマットして返します。
@@ -203,6 +202,7 @@ In the above example, Microsoft.Edge and QQ will be excluded from auto-updates, 
 3. 必要に応じて `update_policy.txt` および `lang.json` の内容を調整してください。
    特に lang.json の英語・日本語の `titles` と `all_latest` の設定はシステム制限により未検証です。必要に応じて修正してください。
 4. 更新をダウンロードするため、スクリプト実行中はネットワーク接続を維持してください。
+5. 中国本土で使用する場合、特別な理由で魔法が必要な場合があります。
 
 ## update_policy.txt の使い方
 
