@@ -6,11 +6,23 @@ import unicodedata
 import json
 import locale
 import ctypes
+import sys
 
 # 读取多语言配置
 # Load multilingual configuration
 # 多言語設定を読み込む
-LANG_CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'lang.json')
+if getattr(sys, 'frozen', False):
+    # 如果是通过pyinstaller打包的可执行文件
+    # If running as a pyinstaller executable
+    # pyinstallerでパッケージ化された実行可能ファイルの場合
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    # 如果是直接运行的脚本
+    # If running as a script
+    # スクリプトとして実行されている場合
+    BASE_DIR = os.path.dirname(__file__)
+
+LANG_CONFIG_PATH = os.path.join(BASE_DIR, 'lang.json')
 def load_lang_pack():
     if not os.path.exists(LANG_CONFIG_PATH):
         print("语言配置文件 lang.json 未找到，默认使用中文。")
@@ -76,7 +88,7 @@ def load_excluded_apps(file_path):
 # 从文件读取排除列表和强制更新列表
 # Read the exclusion list and force update list from the file
 # ファイルから除外リストと強制更新リストを読み込む
-APPS_CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'update_policy.txt')
+APPS_CONFIG_PATH = os.path.join(BASE_DIR, 'update_policy.txt')
 EXCLUDED_APPS, FORCE_UPDATE_APPS = load_excluded_apps(APPS_CONFIG_PATH)
 
 def check_and_update_apps():
