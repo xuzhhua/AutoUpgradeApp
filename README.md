@@ -60,16 +60,23 @@
 
 - 每行填写一个要排除自动更新的应用名称（可为ID、显示名等，支持模糊匹配，忽略大小写）。
 - 以英文感叹号 `!` 开头的行表示“强制更新”应用（即使在排除列表中也会强制更新）。
+- 可以通过在路径后添加 `|admin` 来指定是否以管理员权限启动应用。
 - 空行或仅包含空白字符的行会被忽略。
-- 示例：
+
+### 示例：
 
 ```
-Microsoft.
+Microsoft.Edge
 Notepad++
-!Notepad++
+!Notepad++=C:\\Path\\To\\Notepad++.exe|admin
 QQ
+!AppID1=C:\\Path\\To\\App1.exe
 ```
-上述示例中，Microsoft.Edge 和 QQ 会被排除自动更新，Notepad++ 会被强制更新。
+
+上述示例中：
+- Microsoft.Edge 和 QQ 会被排除自动更新。
+- Notepad++ 会被强制更新，并以管理员权限启动。
+- AppID1 会被强制更新，但不会以管理员权限启动。
 
 ---
 
@@ -134,16 +141,23 @@ The script is designed to run continuously, checking for updates every 24 hours.
 
 - Each line specifies an app name to be excluded from automatic updates (can be ID, display name, etc., supports fuzzy matching, case-insensitive).
 - Lines starting with an exclamation mark `!` indicate "force update" apps (these will be updated even if in the exclude list).
+- You can specify whether to launch the app with admin privileges by adding `|admin` after the path.
 - Blank lines or lines with only whitespace are ignored.
-- Example:
+
+### Example:
 
 ```
 Microsoft.Edge
 Notepad++
-!Notepad++
+!Notepad++=C:\\Path\\To\\Notepad++.exe|admin
 QQ
+!AppID1=C:\\Path\\To\\App1.exe
 ```
-In the above example, Microsoft.Edge and QQ will be excluded from auto-updates, while Notepad++ will be force updated.
+
+In the above example:
+- Microsoft.Edge and QQ will be excluded from auto-updates.
+- Notepad++ will be force updated and launched with admin privileges.
+- AppID1 will be force updated but not launched with admin privileges.
 
 ---
 
@@ -208,14 +222,21 @@ In the above example, Microsoft.Edge and QQ will be excluded from auto-updates, 
 
 - 各行に自動更新から除外したいアプリ名を記載します（ID、表示名など、あいまい一致・大文字小文字無視に対応）。
 - 行頭に感嘆符 `!` を付けると「強制更新」アプリとなり、除外リストにあっても必ず更新されます。
+- パスの後に `|admin` を追加することで、アプリを管理者権限で起動するかどうかを指定できます。
 - 空行や空白のみの行は無視されます。
-- 例：
+
+### 例：
 
 ```
 Microsoft.Edge
 Notepad++
-!Notepad++
+!Notepad++=C:\\Path\\To\\Notepad++.exe|admin
 QQ
+!AppID1=C:\\Path\\To\\App1.exe
 ```
-上記例では、Microsoft.Edge と QQ は自動更新から除外され、Notepad++ は強制的に更新されます。
+
+上記例では：
+- Microsoft.Edge と QQ は自動更新から除外されます。
+- Notepad++ は強制的に更新され、管理者権限で起動されます。
+- AppID1 は強制的に更新されますが、管理者権限では起動されません。
 

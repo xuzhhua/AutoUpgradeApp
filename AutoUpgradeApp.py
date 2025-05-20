@@ -38,7 +38,10 @@ def load_lang_pack():
             "file_not_found": "文件 {file_path} 不存在，使用默认排除列表。",
             "update_done": "于{nowtime}完成更新处理，下一次将在24小时候后检查更新。",
             "require_admin": "请以管理员身份运行此脚本！",
-            "press_enter_exit": "按回车键退出..."
+            "press_enter_exit": "按回车键退出...",
+            "launch_app": "启动应用: {app_path}",
+            "launch_app_admin": "以管理员身份启动应用: {app_path}",
+            "launch_app_error": "无法启动应用 {appID}: {error}"
         }
     with open(LANG_CONFIG_PATH, 'r', encoding='utf-8') as f:
         lang_dict = json.load(f)
@@ -71,6 +74,8 @@ DEFAULT_EXCLUDED_APPS = get_default_excluded_apps()
 def load_excluded_apps(file_path):
     excluded_apps = DEFAULT_EXCLUDED_APPS.copy()
     force_update_apps = []
+    app_paths = {}  # 新增字典存储应用路径
+    app_admin_flags = {}  # 新增字典存储是否以管理员权限启动
     if not os.path.exists(file_path):
         print(LANG_PACK['file_not_found'].format(file_path=file_path))
     else:
@@ -80,16 +85,32 @@ def load_excluded_apps(file_path):
                 if not line:
                     continue
                 if line.startswith('!'):
-                    force_update_apps.append(line[1:].lower())
+                    # 检查是否包含路径和管理员标志信息
+                    if '=' in line:
+                        app_id, app_path = line[1:].split('=', 1)
+                        if '|admin' in app_path:
+                            app_path, admin_flag = app_path.split('|admin', 1)
+                            app_admin_flags[app_id.lower()] = True
+                        else:
+                            app_admin_flags[app_id.lower()] = False
+                        app_paths[app_id.lower()] = app_path.strip()
+                        force_update_apps.append(app_id.lower())
+                    else:
+                        force_update_apps.append(line[1:].lower())
                 else:
                     excluded_apps.append(line.lower())
-    return excluded_apps, force_update_apps
+    return excluded_apps, force_update_apps, app_paths, app_admin_flags
 
 # 从文件读取排除列表和强制更新列表
 # Read the exclusion list and force update list from the file
 # ファイルから除外リストと強制更新リストを読み込む
 APPS_CONFIG_PATH = os.path.join(BASE_DIR, 'update_policy.txt')
-EXCLUDED_APPS, FORCE_UPDATE_APPS = load_excluded_apps(APPS_CONFIG_PATH)
+EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS = load_excluded_apps(APPS_CONFIG_PATH)
+
+# print(f"排除的应用: {EXCLUDED_APPS}")
+# print(f"强制更新的应用: {FORCE_UPDATE_APPS}")
+# print(f"应用路径: {APP_PATHS}")
+# print(f"应用管理员标志: {APP_ADMIN_FLAGS}")
 
 def check_and_update_apps():
     try:
@@ -100,7 +121,7 @@ def check_and_update_apps():
         stdout, stderr = process.communicate()
         # print(stdout)
 
-        if (LANG_PACK['all_latest'] in stdout) or (LANG_PACK['all_latest'] in stdout.replace('。','.')):
+        if (LANG_PACK['all_latest'] in stdout) or (LANG_PACK['all_latest'] in stdout.replace('。', '.')):
             print(LANG_PACK['all_latest'])
             return
         print(LANG_PACK['found_updates'])
@@ -170,6 +191,21 @@ def check_and_update_apps():
                 print(LANG_PACK['error'].format(stderr=stderr))
             else:
                 print(LANG_PACK['update_success'].format(appID=appID, appNew=appNew))
+                # 检查是否需要启动更新后的应用
+                # Check if the updated application needs to be launched
+                # 更新されたアプリケーションを起動する必要があるか確認する
+                if appID.lower() in APP_PATHS:
+                    app_path = APP_PATHS[appID.lower()]
+                    is_admin = APP_ADMIN_FLAGS.get(appID.lower(), False)
+                    try:
+                        if is_admin:
+                            print(LANG_PACK['launch_app_admin'].format(app_path=app_path))
+                            subprocess.Popen(app_path, shell=True)
+                        else:
+                            print(LANG_PACK['launch_app'].format(app_path=app_path))
+                            subprocess.Popen(app_path, shell=True, creationflags=0)
+                    except Exception as e:
+                        print(LANG_PACK['launch_app_error'].format(appID=appID, error=e))
 
     except Exception as e:
         print(LANG_PACK['error'].format(stderr=e))

@@ -11,7 +11,10 @@
     "file_not_found": "文件 {file_path} 不存在，使用默认排除列表。",
     "update_done": "于{nowtime}完成更新处理，下一次将在24小时候后检查更新。",
     "require_admin": "请以管理员身份运行此脚本！",
-    "press_enter_exit": "按回车键退出..."
+    "press_enter_exit": "按回车键退出...",
+    "launch_app": "启动应用: {app_path}",
+    "launch_app_admin": "以管理员身份启动应用: {app_path}",
+    "launch_app_error": "无法启动应用 {appID}: {error}"
   },
   "ja": {
     "titles": ["ID", "バージョン", "利用可能"],
@@ -25,7 +28,10 @@
     "file_not_found": "ファイル {file_path} が存在しません。デフォルトの除外リストを使用します。",
     "update_done": "{nowtime}に更新処理が完了しました。次回は24時間後にチェックします。",
     "require_admin": "管理者権限でこのスクリプトを実行してください！",
-    "press_enter_exit": "Enterキーを押して終了..."
+    "press_enter_exit": "Enterキーを押して終了...",
+    "launch_app": "アプリを起動: {app_path}",
+    "launch_app_admin": "管理者権限でアプリを起動: {app_path}",
+    "launch_app_error": "アプリ {appID} を起動できません: {error}"
   },
   "en": {
     "titles": ["ID", "Version", "Available"],
@@ -39,6 +45,9 @@
     "file_not_found": "File {file_path} not found, using default exclude list.",
     "update_done": "Update completed at {nowtime}, next check in 24 hours.",
     "require_admin": "Please run this script as administrator!",
-    "press_enter_exit": "Press Enter to exit..."
+    "press_enter_exit": "Press Enter to exit...",
+    "launch_app": "Launching application: {app_path}",
+    "launch_app_admin": "Launching application as administrator: {app_path}",
+    "launch_app_error": "Failed to launch application {appID}: {error}"
   }
 }
