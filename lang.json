@@ -9,7 +9,7 @@
     "update_success": "更新成功: {appID} [{appNew}]",
     "error": "错误信息: {stderr}",
     "file_not_found": "文件 {file_path} 不存在，使用默认排除列表。",
-    "update_done": "于{nowtime}完成更新处理，下一次将在24小时候后检查更新。",
+    "update_done": "于{nowtime}完成更新处理，下一次将在24小时后检查更新。",
     "require_admin": "请以管理员身份运行此脚本！",
     "press_enter_exit": "按回车键退出...",
     "launch_app": "启动应用: {app_path}",

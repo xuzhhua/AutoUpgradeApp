@@ -36,7 +36,7 @@ def load_lang_pack():
             "update_success": "更新成功: {appID} [{appNew}]",
             "error": "错误信息: {stderr}",
             "file_not_found": "文件 {file_path} 不存在，使用默认排除列表。",
-            "update_done": "于{nowtime}完成更新处理，下一次将在24小时候后检查更新。",
+            "update_done": "于{nowtime}完成更新处理，下一次将在24小时后检查更新。",
             "require_admin": "请以管理员身份运行此脚本！",
             "press_enter_exit": "按回车键退出...",
             "launch_app": "启动应用: {app_path}",
@@ -76,6 +76,7 @@ def load_excluded_apps(file_path):
     force_update_apps = []
     app_paths = {}  # 新增字典存储应用路径
     app_admin_flags = {}  # 新增字典存储是否以管理员权限启动
+    skip_all_except_force = False
     if not os.path.exists(file_path):
         print(LANG_PACK['file_not_found'].format(file_path=file_path))
     else:
@@ -83,6 +84,9 @@ def load_excluded_apps(file_path):
             for line in file:
                 line = line.strip()
                 if not line:
+                    continue
+                if line == '*':
+                    skip_all_except_force = True
                     continue
                 if line.startswith('!'):
                     # 检查是否包含路径和管理员标志信息
@@ -99,18 +103,19 @@ def load_excluded_apps(file_path):
                         force_update_apps.append(line[1:].lower())
                 else:
                     excluded_apps.append(line.lower())
-    return excluded_apps, force_update_apps, app_paths, app_admin_flags
+    return excluded_apps, force_update_apps, app_paths, app_admin_flags, skip_all_except_force
 
 # 从文件读取排除列表和强制更新列表
 # Read the exclusion list and force update list from the file
 # ファイルから除外リストと強制更新リストを読み込む
 APPS_CONFIG_PATH = os.path.join(BASE_DIR, 'update_policy.txt')
-EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS = load_excluded_apps(APPS_CONFIG_PATH)
+EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS, SKIP_ALL_EXCEPT_FORCE = load_excluded_apps(APPS_CONFIG_PATH)
 
 # print(f"排除的应用: {EXCLUDED_APPS}")
 # print(f"强制更新的应用: {FORCE_UPDATE_APPS}")
 # print(f"应用路径: {APP_PATHS}")
 # print(f"应用管理员标志: {APP_ADMIN_FLAGS}")
+# print(f"跳过所有非强制更新: {SKIP_ALL_EXCEPT_FORCE}")
 
 def check_and_update_apps():
     try:
@@ -171,11 +176,23 @@ def check_and_update_apps():
             appVer = substr_by_display_width(line, col_pos[1], col_pos[2] - col_pos[1]).strip()
             appNew = substr_by_display_width(line, col_pos[2], col_pos[3] - col_pos[2]).strip()
 
+            # 跳过空ID的行，防止打印空信息
+            # Skip lines with empty IDs to prevent printing empty information
+            # 空のIDの行をスキップして、空の情報を印刷しないようにする
+            if not appID:
+                continue
+
             # 判断是否为强制更新对象（忽略大小写）
             # Determine if it is a force update object (case-insensitive)
             # 強制更新対象であるかどうかを判定する（大文字小文字を区別しない）
             line_lower = line.lower()
             is_force_update = any(app in line_lower for app in FORCE_UPDATE_APPS)
+            # 新增：如果设置了*，则只更新强制对象，其余全部显示跳过
+            # If * is set, only update force objects, and skip all others
+            # 新たに追加：*が設定されている場合、強制オブジェクトのみを更新し、他はすべてスキップ
+            if SKIP_ALL_EXCEPT_FORCE and not is_force_update:
+                print(LANG_PACK['skip_user'].format(appID=appID, appVer=appVer, appNew=appNew))
+                continue
             if any(app in line_lower for app in EXCLUDED_APPS) and not is_force_update:
                 if not any(app in line for app in DEFAULT_EXCLUDED_APPS):
                     print(LANG_PACK['skip_user'].format(appID=appID, appVer=appVer, appNew=appNew))

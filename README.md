@@ -62,21 +62,29 @@
 - 以英文感叹号 `!` 开头的行表示“强制更新”应用（即使在排除列表中也会强制更新）。
 - 可以通过在路径后添加 `|admin` 来指定是否以管理员权限启动应用。
 - 空行或仅包含空白字符的行会被忽略。
+- 特殊规则：
+  - 单独一行 `*` 表示“只更新强制对象，其他所有应用都跳过”，并且会在控制台显示所有被跳过应用的信息。
 
 ### 示例：
 
 ```
-Microsoft.Edge
-Notepad++
-!Notepad++=C:\\Path\\To\\Notepad++.exe|admin
-QQ
-!AppID1=C:\\Path\\To\\App1.exe
+# 只更新强制对象，其他全部跳过
+*
+!AppID1=C:\\Path\\To\\App1.exe|admin
+!AppID2=C:\\Path\\To\\App2.exe
+AppID3
+AppID4
+!AppID3
 ```
 
-上述示例中：
-- Microsoft.Edge 和 QQ 会被排除自动更新。
-- Notepad++ 会被强制更新，并以管理员权限启动。
-- AppID1 会被强制更新，但不会以管理员权限启动。
+- 上例中：
+  - 只有 AppID1 和 AppID2 会被强制更新（并按配置启动），AppID3、AppID4 及其他所有应用都会被跳过，并在控制台显示跳过信息。
+  - `!AppID3` 表示强制更新 AppID3 且不启动指定应用。
+  - `|admin` 表示以管理员权限启动。
+
+### 兼容性说明
+- 如果未设置 `*`，则按排除/强制规则正常处理。
+- 如果设置了 `*`，则只处理强制对象，其余全部跳过并提示。
 
 ---
 
@@ -143,21 +151,29 @@ The script is designed to run continuously, checking for updates every 24 hours.
 - Lines starting with an exclamation mark `!` indicate "force update" apps (these will be updated even if in the exclude list).
 - You can specify whether to launch the app with admin privileges by adding `|admin` after the path.
 - Blank lines or lines with only whitespace are ignored.
+- Special rule:
+  - A single line `*` means "only update force-update apps, skip all other apps", and will display information about all skipped apps in the console.
 
 ### Example:
 
 ```
-Microsoft.Edge
-Notepad++
-!Notepad++=C:\\Path\\To\\Notepad++.exe|admin
-QQ
-!AppID1=C:\\Path\\To\\App1.exe
+# Only update force-update apps, skip all others
+*
+!AppID1=C:\\Path\\To\\App1.exe|admin
+!AppID2=C:\\Path\\To\\App2.exe
+AppID3
+AppID4
+!AppID3
 ```
 
-In the above example:
-- Microsoft.Edge and QQ will be excluded from auto-updates.
-- Notepad++ will be force updated and launched with admin privileges.
-- AppID1 will be force updated but not launched with admin privileges.
+- In the above example:
+  - Only AppID1 and AppID2 will be force updated (and launched as configured), AppID3, AppID4, and all other apps will be skipped, with skip information displayed in the console.
+  - `!AppID3` indicates a force update for AppID3 without launching the specified app.
+  - `|admin` means to launch with admin privileges.
+
+### Compatibility Notes
+- If `*` is not set, the normal exclude/force-update rules apply.
+- If `*` is set, only force-update apps are processed, all others are skipped with a prompt.
 
 ---
 
@@ -224,19 +240,27 @@ In the above example:
 - 行頭に感嘆符 `!` を付けると「強制更新」アプリとなり、除外リストにあっても必ず更新されます。
 - パスの後に `|admin` を追加することで、アプリを管理者権限で起動するかどうかを指定できます。
 - 空行や空白のみの行は無視されます。
+- 特殊ルール：
+  - 単独一行 `*` は「強制更新対象のみを更新し、他のすべてのアプリをスキップする」ことを意味し、スキップされたすべてのアプリの情報がコンソールに表示されます。
 
 ### 例：
 
 ```
-Microsoft.Edge
-Notepad++
-!Notepad++=C:\\Path\\To\\Notepad++.exe|admin
-QQ
-!AppID1=C:\\Path\\To\\App1.exe
+# 強制更新対象のみを更新し、他のすべてのアプリをスキップ
+*
+!AppID1=C:\\Path\\To\\App1.exe|admin
+!AppID2=C:\\Path\\To\\App2.exe
+AppID3
+AppID4
+!AppID3
 ```
 
 上記例では：
-- Microsoft.Edge と QQ は自動更新から除外されます。
-- Notepad++ は強制的に更新され、管理者権限で起動されます。
-- AppID1 は強制的に更新されますが、管理者権限では起動されません。
+- AppID1 と AppID2 のみが強制的に更新され（設定に従って起動）、AppID3、AppID4 および他のすべてのアプリがスキップされ、スキップ情報がコンソールに表示されます。
+- `!AppID3` は AppID3 を強制更新し、指定されたアプリを起動しないことを意味します。
+- `|admin` は管理者権限で起動することを意味します。
+
+### 互換性の注意事項
+- `*` が設定されていない場合、通常の除外/強制更新ルールが適用されます。
+- `*` が設定されている場合、強制更新対象のみが処理され、他のすべてがスキップされ、プロンプトが表示されます。
 
