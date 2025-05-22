@@ -3,9 +3,9 @@
     "titles": ["ID", "版本", "可用"],
     "all_latest": "所有应用均为最新版本。",
     "found_updates": "发现有更新的应用，正在准备...",
-    "skip_user": "跳过用户指定更新: {appID} [{appVer} → {appNew}]",
-    "force_update": "强制更新: {appID} [{appVer} → {appNew}]",
-    "do_update": "执行更新: {appID} [{appVer} → {appNew}]",
+    "skip_user": "跳过用户指定更新: {appID} [{appVer} -> {appNew}]",
+    "force_update": "强制更新: {appID} [{appVer} -> {appNew}]",
+    "do_update": "执行更新: {appID} [{appVer} -> {appNew}]",
     "update_success": "更新成功: {appID} [{appNew}]",
     "error": "错误信息: {stderr}",
     "file_not_found": "文件 {file_path} 不存在，使用默认排除列表。",
@@ -14,15 +14,18 @@
     "press_enter_exit": "按回车键退出...",
     "launch_app": "启动应用: {app_path}",
     "launch_app_admin": "以管理员身份启动应用: {app_path}",
-    "launch_app_error": "无法启动应用 {appID}: {error}"
+    "launch_app_error": "无法启动应用 {appID}: {error}",
+    "arg_dry_run": "仅预览将要升级的应用，不执行实际升级",
+    "arg_once": "只执行一次升级检查，不进入循环",
+    "app_description": "AutoUpgradeApp - winget 自动升级工具"
   },
   "ja": {
     "titles": ["ID", "バージョン", "利用可能"],
     "all_latest": "すべてのアプリは最新バージョンです。",
     "found_updates": "更新が見つかりました、準備中...",
-    "skip_user": "ユーザー指定の更新をスキップ: {appID} [{appVer} → {appNew}]",
-    "force_update": "強制更新: {appID} [{appVer} → {appNew}]",
-    "do_update": "更新を実行: {appID} [{appVer} → {appNew}]",
+    "skip_user": "ユーザー指定の更新をスキップ: {appID} [{appVer} -> {appNew}]",
+    "force_update": "強制更新: {appID} [{appVer} -> {appNew}]",
+    "do_update": "更新を実行: {appID} [{appVer} -> {appNew}]",
     "update_success": "更新成功: {appID} [{appNew}]",
     "error": "エラー情報: {stderr}",
     "file_not_found": "ファイル {file_path} が存在しません。デフォルトの除外リストを使用します。",
@@ -31,15 +34,18 @@
     "press_enter_exit": "Enterキーを押して終了...",
     "launch_app": "アプリを起動: {app_path}",
     "launch_app_admin": "管理者権限でアプリを起動: {app_path}",
-    "launch_app_error": "アプリ {appID} を起動できません: {error}"
+    "launch_app_error": "アプリ {appID} を起動できません: {error}",
+    "arg_dry_run": "アップグレードするアプリをプレビューするだけで、実際のアップグレードは実行しません",
+    "arg_once": "1回だけアップグレードチェックを実行し、ループに入らない",
+    "app_description": "AutoUpgradeApp - winget 自動アップグレードツール"
   },
   "en": {
     "titles": ["ID", "Version", "Available"],
     "all_latest": "All apps are up to date.",
     "found_updates": "Updates found, preparing...",
-    "skip_user": "Skip user-specified update: {appID} [{appVer} → {appNew}]",
-    "force_update": "Force update: {appID} [{appVer} → {appNew}]",
-    "do_update": "Updating: {appID} [{appVer} → {appNew}]",
+    "skip_user": "Skip user-specified update: {appID} [{appVer} -> {appNew}]",
+    "force_update": "Force update: {appID} [{appVer} -> {appNew}]",
+    "do_update": "Updating: {appID} [{appVer} -> {appNew}]",
     "update_success": "Update success: {appID} [{appNew}]",
     "error": "Error: {stderr}",
     "file_not_found": "File {file_path} not found, using default exclude list.",
@@ -48,6 +54,9 @@
     "press_enter_exit": "Press Enter to exit...",
     "launch_app": "Launching application: {app_path}",
     "launch_app_admin": "Launching application as administrator: {app_path}",
-    "launch_app_error": "Failed to launch application {appID}: {error}"
+    "launch_app_error": "Failed to launch application {appID}: {error}",
+    "arg_dry_run": "Preview the apps to be upgraded, do not perform actual upgrade",
+    "arg_once": "Perform upgrade check only once, do not enter loop",
+    "app_description": "AutoUpgradeApp - winget auto upgrade tool"
   }
 }

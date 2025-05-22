@@ -86,6 +86,35 @@ AppID4
 - 如果未设置 `*`，则按排除/强制规则正常处理。
 - 如果设置了 `*`，则只处理强制对象，其余全部跳过并提示。
 
+## 命令行参数与高级用法
+
+- `--dry-run`：仅预览将要升级的应用，不执行实际升级和启动（适合测试和定时任务预览）。
+- `--once`：只执行一次升级检查，不进入24小时循环（适合定时任务或手动触发）。
+
+### 示例：
+
+```bash
+python AutoUpgradeApp.py --dry-run
+python AutoUpgradeApp.py --once
+python AutoUpgradeApp.py --dry-run --once
+```
+
+## 业务流程结构
+
+- 主入口 `main()` 负责参数解析、权限检查和调度主循环。
+- `monitor_updates()` 支持定时循环或单次执行。
+- `check_and_update_apps()` 负责遍历所有可升级应用，按策略判断并调度升级。
+- `process_upgrade_item()` 处理单个应用的升级/跳过/强制/排除等业务逻辑。
+- `launch_app_by_id()` 支持升级后自动启动指定应用。
+
+## 主要变更与最佳实践
+
+- 支持 update_policy.txt 中 `*` 规则，仅强制对象更新，其余全部跳过。
+- 多语言与配置加载分离，便于自定义和国际化。
+- 工具函数与主流程分离，结构清晰，易于维护。
+- 支持 dry-run 预览和单次执行，适合自动化运维和测试。
+- 建议结合 Windows 任务计划程序定时触发 `--once` 或 `--dry-run --once`。
+
 ---
 
 # AutoUpgradeApp.py (English)
@@ -175,6 +204,35 @@ AppID4
 - If `*` is not set, the normal exclude/force-update rules apply.
 - If `*` is set, only force-update apps are processed, all others are skipped with a prompt.
 
+## Command Line Arguments and Advanced Usage
+
+- `--dry-run`: Preview the apps to be upgraded without performing the actual upgrade and launch (suitable for testing and scheduled task preview).
+- `--once`: Perform the upgrade check only once, without entering the 24-hour loop (suitable for scheduled tasks or manual triggers).
+
+### Examples:
+
+```bash
+python AutoUpgradeApp.py --dry-run
+python AutoUpgradeApp.py --once
+python AutoUpgradeApp.py --dry-run --once
+```
+
+## Business Process Structure
+
+- The main entry `main()` is responsible for parameter parsing, permission checking, and dispatching the main loop.
+- `monitor_updates()` supports timed loops or single execution.
+- `check_and_update_apps()` is responsible for traversing all upgradable apps, judging and scheduling upgrades according to the policy.
+- `process_upgrade_item()` handles the business logic of upgrading/skipping/forcing/excluding a single app.
+- `launch_app_by_id()` supports automatically launching specified apps after the upgrade.
+
+## Major Changes and Best Practices
+
+- Support for the `*` rule in update_policy.txt, only force-update objects are updated, and all others are skipped.
+- Separation of multilingual and configuration loading for easy customization and internationalization.
+- Separation of utility functions and main processes, clear structure, and easy maintenance.
+- Support for dry-run preview and single execution, suitable for automated operations and testing.
+- It is recommended to use the Windows Task Scheduler to trigger `--once` or `--dry-run --once` regularly.
+
 ---
 
 # AutoUpgradeApp.py（日本語）
@@ -263,4 +321,35 @@ AppID4
 ### 互換性の注意事項
 - `*` が設定されていない場合、通常の除外/強制更新ルールが適用されます。
 - `*` が設定されている場合、強制更新対象のみが処理され、他のすべてがスキップされ、プロンプトが表示されます。
+
+## コマンドライン引数と高度な使い方
+
+- `--dry-run`：アップグレード対象アプリをプレビューのみ行い、実際のアップグレードや起動は行いません（テストや定期タスクのプレビューに最適）。
+- `--once`：アップグレードチェックを一度だけ実行し、24時間ループには入りません（定期タスクや手動実行に適しています）。
+
+### 例：
+
+```bash
+python AutoUpgradeApp.py --dry-run
+python AutoUpgradeApp.py --once
+python AutoUpgradeApp.py --dry-run --once
+```
+
+## 業務プロセス構成
+
+- メインエントリ `main()` は引数解析、権限チェック、メインループの調整を担当します。
+- `monitor_updates()` は定期ループまたは単回実行に対応します。
+- `check_and_update_apps()` はアップグレード可能なアプリを巡回し、ポリシーに従ってアップグレードを判断・実行します。
+- `process_upgrade_item()` は個々のアプリのアップグレード／スキップ／強制／除外などの業務ロジックを処理します。
+- `launch_app_by_id()` はアップグレード後に指定アプリの自動起動をサポートします。
+
+## 主な変更点とベストプラクティス
+
+- update_policy.txt の `*` ルールに対応し、強制対象のみアップデートし、それ以外はすべてスキップします。
+- 多言語・設定の読み込みを分離し、カスタマイズや国際化が容易です。
+- ユーティリティ関数とメイン処理を分離し、構造が明確で保守しやすくなっています。
+- dry-run プレビューや単回実行に対応し、自動運用やテストに最適です。
+- Windows タスクスケジューラと組み合わせて `--once` や `--dry-run --once` の定期実行を推奨します。
+
+---
 
