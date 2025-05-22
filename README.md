@@ -115,6 +115,31 @@ python AutoUpgradeApp.py --dry-run --once
 - 支持 dry-run 预览和单次执行，适合自动化运维和测试。
 - 建议结合 Windows 任务计划程序定时触发 `--once` 或 `--dry-run --once`。
 
+## 项目结构与模块职责
+
+- `AutoUpgradeApp.py`：主入口，仅负责参数解析、权限检查和主循环调度。
+- `upgrade.py`：升级、遍历、启动等核心业务逻辑。
+- `config.py`：配置与多语言加载、策略文件解析。
+- `utils.py`：通用工具函数（如字符串宽度、时间处理等）。
+- `output.py`：统一输出与日志，支持 info/warn/error 多级别及日志文件。
+
+## 类型注解与文档
+
+- 全项目所有函数和主要变量均已补充类型注解，提升类型安全和可读性。
+- 所有模块均补充详细文档字符串，便于 IDE/自动化工具集成和二次开发。
+
+## 日志与输出机制
+
+- 所有输出均通过 output.py 封装，支持 info/warn/error 多级别输出。
+- 支持日志文件记录，便于问题追踪和自动化运维。
+- 控制台输出与日志解耦，便于定制和集成。
+
+## 异常处理与自动化集成
+
+- 所有关键异常均详细输出堆栈信息，便于排查。
+- 主流程和 upgrade.py 关键异常处均使用 sys.exit(1)/sys.exit(0) 友好退出，适合自动化集成。
+- 建议结合 Windows 任务计划程序、CI/CD 等自动化工具，定期触发 `--once` 或 `--dry-run --once`。
+
 ---
 
 # AutoUpgradeApp.py (English)
@@ -233,6 +258,31 @@ python AutoUpgradeApp.py --dry-run --once
 - Support for dry-run preview and single execution, suitable for automated operations and testing.
 - It is recommended to use the Windows Task Scheduler to trigger `--once` or `--dry-run --once` regularly.
 
+## Project Structure & Module Responsibilities
+
+- `AutoUpgradeApp.py`: Main entry, only responsible for argument parsing, permission checking, and main loop dispatch.
+- `upgrade.py`: Core business logic for upgrade, traversal, and app launching.
+- `config.py`: Configuration and multilingual loading, policy file parsing.
+- `utils.py`: General utility functions (string width, time, etc.).
+- `output.py`: Unified output and logging, supports info/warn/error levels and log files.
+
+## Type Annotations & Documentation
+
+- All functions and main variables are annotated with types for better type safety and readability.
+- All modules have detailed docstrings for IDE/automation tool integration and secondary development.
+
+## Logging & Output Mechanism
+
+- All output is encapsulated via output.py, supporting info/warn/error levels.
+- Log file support for troubleshooting and automated operations.
+- Console output and logging are decoupled for customization and integration.
+
+## Exception Handling & Automation Integration
+
+- All key exceptions output detailed stack traces for troubleshooting.
+- Main process and key exceptions in upgrade.py use sys.exit(1)/sys.exit(0) for automation-friendly exit codes.
+- Recommended to use with Windows Task Scheduler, CI/CD, etc., to regularly trigger `--once` or `--dry-run --once`.
+
 ---
 
 # AutoUpgradeApp.py（日本語）
@@ -350,6 +400,31 @@ python AutoUpgradeApp.py --dry-run --once
 - ユーティリティ関数とメイン処理を分離し、構造が明確で保守しやすくなっています。
 - dry-run プレビューや単回実行に対応し、自動運用やテストに最適です。
 - Windows タスクスケジューラと組み合わせて `--once` や `--dry-run --once` の定期実行を推奨します。
+
+## プロジェクト構成とモジュールの役割
+
+- `AutoUpgradeApp.py`：メインエントリ。引数解析、権限チェック、メインループの調整のみ担当。
+- `upgrade.py`：アップグレード・巡回・起動などのコア業務ロジック。
+- `config.py`：設定・多言語読み込み、ポリシーファイル解析。
+- `utils.py`：汎用ユーティリティ関数（文字幅、時刻処理など）。
+- `output.py`：統一出力・ログ。info/warn/error 各レベルとログファイル対応。
+
+## 型アノテーションとドキュメント
+
+- すべての関数・主要変数に型アノテーションを付与し、型安全性と可読性を向上。
+- すべてのモジュールに詳細なドキュメント文字列を追加し、IDEや自動化ツールとの連携や二次開発に最適。
+
+## ログ・出力メカニズム
+
+- すべての出力は output.py でラップされ、info/warn/error 各レベルに対応。
+- ログファイル記録に対応し、トラブルシューティングや自動運用に便利。
+- コンソール出力とログを分離し、カスタマイズや統合が容易。
+
+## 例外処理と自動化統合
+
+- すべての主要例外で詳細なスタックトレースを出力し、問題解析を容易に。
+- メイン処理や upgrade.py の主要例外で sys.exit(1)/sys.exit(0) により自動化に優しい終了コードを返却。
+- Windows タスクスケジューラや CI/CD などの自動化ツールと組み合わせ、`--once` や `--dry-run --once` の定期実行を推奨。
 
 ---
 
