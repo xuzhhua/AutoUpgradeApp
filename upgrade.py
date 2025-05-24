@@ -34,12 +34,18 @@ def launch_app_by_id(appID: str) -> None:
         app_path = APP_PATHS[appID.lower()]
         is_admin = APP_ADMIN_FLAGS.get(appID.lower(), False)
         try:
+            """
+            shell=True 时，路径带空格需加引号
+            When shell=True, paths with spaces need to be quoted
+            パスにスペースがある場合は引用符で囲む必要があります
+            """
+            quoted_path = f'"{app_path}"' if ' ' in app_path else app_path
             if is_admin:
                 output.info(LANG_PACK['launch_app_admin'].format(app_path=app_path))
-                subprocess.Popen([app_path], shell=True)
+                subprocess.Popen(quoted_path, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
                 output.info(LANG_PACK['launch_app'].format(app_path=app_path))
-                subprocess.Popen([app_path], shell=True, creationflags=0)
+                subprocess.Popen(quoted_path, shell=True, creationflags=0, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception as e:
             output.error(LANG_PACK['launch_app_error'].format(appID=appID, error=e))
             output.error(traceback.format_exc())
