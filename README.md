@@ -70,8 +70,8 @@
 ```
 # 只更新强制对象，其他全部跳过
 *
-!AppID1=C:\\Path\\To\\App1.exe|admin
-!AppID2=C:\\Path\\To\\App2.exe
+!AppID1=C:\Path\To\App1.exe|admin
+!AppID2=C:\Path\To\App2.exe
 AppID3
 AppID4
 !AppID3
@@ -106,6 +106,35 @@ python AutoUpgradeApp.py --dry-run --once
 - `check_and_update_apps()` 负责遍历所有可升级应用，按策略判断并调度升级。
 - `process_upgrade_item()` 处理单个应用的升级/跳过/强制/排除等业务逻辑。
 - `launch_app_by_id()` 支持升级后自动启动指定应用。
+
+## 启动应用的输出行为
+
+- 通过 `launch_app_by_id()` 启动的应用，其标准输出和错误输出均被重定向（不会显示在当前控制台窗口），以避免干扰主脚本日志和输出。
+- 这一行为适用于所有自动升级后自动启动的应用，无论是否以管理员权限启动。
+- 如需查看被启动应用的输出，请手动运行对应程序。
+
+## 常见问题（FAQ）
+
+**Q1: 为什么升级后自动启动的应用没有任何输出？**  
+A: 所有通过 `launch_app_by_id()` 启动的应用，其标准输出和错误输出均被重定向（不会显示在当前控制台窗口），以避免干扰主脚本日志。如需查看输出，请手动运行对应程序。
+
+**Q2: 如何只升级部分应用或排除某些应用？**  
+A: 请编辑 `update_policy.txt`，按规则填写排除和强制更新对象。可用 `*` 规则只升级强制对象，其余全部跳过。
+
+**Q3: 脚本为什么需要管理员权限？**  
+A: winget 执行大部分应用升级操作需要管理员权限，否则会失败或部分升级无效。
+
+**Q4: 日志文件在哪里？如何自定义？**  
+A: 日志文件路径和格式可在 `output.py` 中调整，所有 info/warn/error 级别日志均会记录。
+
+**Q5: 为什么英文/日文界面下部分提示不完整？**  
+A: 由于系统限制，`lang.json` 中英文和日文的 `titles`、`all_latest` 等字段未完全测试，建议根据实际输出自行调整。
+
+**Q6: 如何与 Windows 任务计划程序或 CI/CD 集成？**  
+A: 推荐使用 `--once` 或 `--dry-run --once` 参数，结合计划任务定时触发，详见“命令行参数与高级用法”章节。
+
+**Q7: 支持哪些 Windows 版本？**  
+A: 仅支持 Windows 10/11，需预装 winget 1.3+ 和 Python 3.7+。
 
 ## 主要变更与最佳实践
 
@@ -213,8 +242,8 @@ The script is designed to run continuously, checking for updates every 24 hours.
 ```
 # Only update force-update apps, skip all others
 *
-!AppID1=C:\\Path\\To\\App1.exe|admin
-!AppID2=C:\\Path\\To\\App2.exe
+!AppID1=C:\Path\To\App1.exe|admin
+!AppID2=C:\Path\To\App2.exe
 AppID3
 AppID4
 !AppID3
@@ -249,6 +278,34 @@ python AutoUpgradeApp.py --dry-run --once
 - `check_and_update_apps()` is responsible for traversing all upgradable apps, judging and scheduling upgrades according to the policy.
 - `process_upgrade_item()` handles the business logic of upgrading/skipping/forcing/excluding a single app.
 - `launch_app_by_id()` supports automatically launching specified apps after the upgrade.
+
+## Output Behavior of Launched Apps
+
+- The standard output and error output of apps launched via `launch_app_by_id()` are redirected (not displayed in the current console window) to avoid interfering with the main script logs and outputs.
+- This behavior applies to all apps that are automatically launched after an upgrade, regardless of whether they are launched with admin privileges.
+- To view the output of launched apps, please run the corresponding program manually.
+
+## Common Issues (FAQ)
+**Q1: Why is there no output from the apps launched after the upgrade?**
+A: All apps launched via `launch_app_by_id()` have their standard output and error output redirected (not displayed in the current console window) to avoid interfering with the main script logs. To view the output, please run the corresponding program manually.
+
+**Q2: How can I only upgrade certain apps or exclude some apps?**
+A: Please edit `update_policy.txt` and fill in the exclusion and force-update objects according to the rules. You can use the `*` rule to only upgrade force-update objects, skipping all others.
+
+**Q3: Why does the script require admin privileges?**
+A: Most winget operations for upgrading applications require admin privileges; otherwise, they may fail or be partially ineffective.
+
+**Q4: Where are the log files? How can I customize them?**
+A: The log file path and format can be adjusted in `output.py`, and all info/warn/error level logs will be recorded.
+
+**Q5: Why are some prompts incomplete in the English/Japanese interface?**
+A: Due to system limitations, the `titles`, `all_latest`, and other fields in `lang.json` for English and Japanese have not been fully tested. It is recommended to adjust them based on actual output.
+
+**Q6: How to integrate with Windows Task Scheduler or CI/CD?**
+A: It is recommended to use `--once` or `--dry-run --once` parameters, combined with scheduled tasks for regular triggering. See the "Command Line Arguments and Advanced Usage" section for details.
+
+**Q7: Which Windows versions are supported?**
+A: Only Windows 10/11 is supported, and winget 1.3+ and Python 3.7+ must be pre-installed.
 
 ## Major Changes and Best Practices
 
@@ -356,8 +413,8 @@ python AutoUpgradeApp.py --dry-run --once
 ```
 # 強制更新対象のみを更新し、他のすべてのアプリをスキップ
 *
-!AppID1=C:\\Path\\To\\App1.exe|admin
-!AppID2=C:\\Path\\To\\App2.exe
+!AppID1=C:\Path\To\App1.exe|admin
+!AppID2=C:\Path\To\App2.exe
 AppID3
 AppID4
 !AppID3
@@ -392,6 +449,34 @@ python AutoUpgradeApp.py --dry-run --once
 - `check_and_update_apps()` はアップグレード可能なアプリを巡回し、ポリシーに従ってアップグレードを判断・実行します。
 - `process_upgrade_item()` は個々のアプリのアップグレード／スキップ／強制／除外などの業務ロジックを処理します。
 - `launch_app_by_id()` はアップグレード後に指定アプリの自動起動をサポートします。
+
+## 起動アプリの出力動作
+
+- `launch_app_by_id()` で起動されたアプリの標準出力とエラー出力はリダイレクトされ、現在のコンソールウィンドウには表示されません。これにより、メインスクリプトのログや出力に干渉しません。
+- この動作は、管理者権限で起動されるかどうかに関わらず、アップグレード後に自動的に起動されるすべてのアプリに適用されます。
+- 起動されたアプリの出力を確認するには、対応するプログラムを手動で実行してください。
+
+## よくある質問（FAQ）
+**Q1: アップグレード後に自動起動したアプリの出力がないのはなぜですか？**
+A: `launch_app_by_id()` で起動されたアプリの標準出力とエラー出力はリダイレクトされ、現在のコンソールウィンドウには表示されません。これにより、メインスクリプトのログに干渉しません。出力を確認するには、手動で対応するプログラムを実行してください。
+
+**Q2: どうすれば一部のアプリのみをアップグレードしたり、特定のアプリを除外できますか？**
+A: `update_policy.txt` を編集し、除外と強制更新対象をルールに従って記入してください。`*` ルールを使用して強制更新対象のみをアップグレードし、他はすべてスキップできます。
+
+**Q3: スクリプトはなぜ管理者権限が必要ですか？**
+A: winget のほとんどのアプリアップグレード操作は管理者権限を必要とします。そうしないと、失敗したり部分的に無効になることがあります。
+
+**Q4: ログファイルはどこにありますか？カスタマイズは可能ですか？**
+A: ログファイルのパスと形式は `output.py` で調整可能で、すべての info/warn/error レベルのログが記録されます。
+
+**Q5: 英語/日本語インターフェースで一部のプロンプトが不完全なのはなぜですか？**
+A: システム制限により、`lang.json` の英語と日本語の `titles`、`all_latest` などのフィールドは完全にテストされていません。実際の出力に基づいて調整することをお勧めします。
+
+**Q6: Windows タスクスケジューラや CI/CD と統合するには？**
+A: `--once` または `--dry-run --once` パラメータを使用し、定期的にトリガーするためにスケジュールされたタスクと組み合わせることをお勧めします。詳細は「コマンドライン引数と高度な使い方」セクションを参照してください。
+
+**Q7: どの Windows バージョンがサポートされていますか？**
+A: Windows 10/11 のみサポートされており、winget 1.3+ と Python 3.7+ が事前にインストールされている必要があります。
 
 ## 主な変更点とベストプラクティス
 
