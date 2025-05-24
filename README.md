@@ -78,7 +78,7 @@ AppID4
 ```
 
 - 上例中：
-  - 只有 AppID1 和 AppID2 会被强制更新（并按配置启动），AppID3、AppID4 及其他所有应用都会被跳过，并在控制台显示跳过信息。
+  - 只有 AppID1 和 AppID2 会被强制更新（并按配置启动指定应用），AppID3会被强制更新。AppID4 及其他所有应用都会被跳过，并在控制台显示跳过信息。
   - `!AppID3` 表示强制更新 AppID3 且不启动指定应用。
   - `|admin` 表示以管理员权限启动。
 
@@ -250,7 +250,7 @@ AppID4
 ```
 
 - In the above example:
-  - Only AppID1 and AppID2 will be force updated (and launched as configured), AppID3, AppID4, and all other apps will be skipped, with skip information displayed in the console.
+  - Only AppID1 and AppID2 will be force-updated (and launched as configured), AppID3 will also be force-updated. AppID4 and all other apps will be skipped, and skip information will be displayed in the console.
   - `!AppID3` indicates a force update for AppID3 without launching the specified app.
   - `|admin` means to launch with admin privileges.
 
@@ -419,10 +419,9 @@ AppID3
 AppID4
 !AppID3
 ```
-
-上記例では：
-- AppID1 と AppID2 のみが強制的に更新され（設定に従って起動）、AppID3、AppID4 および他のすべてのアプリがスキップされ、スキップ情報がコンソールに表示されます。
-- `!AppID3` は AppID3 を強制更新し、指定されたアプリを起動しないことを意味します。
+上記の例では：
+- AppID1 と AppID2 のみが強制的にアップデートされ（設定に従って指定アプリも起動）、AppID3 も強制的にアップデートされます。AppID4 およびその他すべてのアプリはスキップされ、スキップ情報がコンソールに表示されます。
+- `!AppID3` は AppID3 を強制的にアップデートし、指定されたアプリを起動しないことを意味します。
 - `|admin` は管理者権限で起動することを意味します。
 
 ### 互換性の注意事項
