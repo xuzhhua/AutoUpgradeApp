@@ -1,7 +1,7 @@
 """
 config.py
 ---------
-配置与多语言加载模块，负责全局配置、语言包、策略文件的读取与解析。
+配置与多语言加载模块，负责全局配置、语言包、和策略文件的读取与解析。
 
 Configuration and multi-language loading module, responsible for global configuration, language pack, and policy file reading and parsing.
 
@@ -32,6 +32,7 @@ def load_lang_pack() -> Dict[str, Any]:
         print("语言配置文件 lang.json 未找到，默认使用中文。")
         return {
             "titles": ["ID", "版本", "可用"],
+            "winget_skip_info": ["显式目标"],
             "all_latest": "所有应用均为最新版本。",
             "found_updates": "发现有更新的应用，正在准备...",
             "skip_user": "跳过用户指定更新: {appID} [{appVer} -> {appNew}]",
@@ -72,7 +73,7 @@ def get_default_excluded_apps() -> List[str]:
     """
     return [
         "   -", "   |", "   \\", "   /", "---"
-    ] + LANG_PACK['titles']
+    ] + LANG_PACK['titles'] + LANG_PACK['winget_skip_info']
 
 DEFAULT_EXCLUDED_APPS: List[str] = get_default_excluded_apps()
 
@@ -122,3 +123,12 @@ def load_excluded_apps(file_path: str) -> Tuple[List[str], List[str], Dict[str, 
 
 APPS_CONFIG_PATH: str = os.path.join(BASE_DIR, 'update_policy.txt')
 EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS, SKIP_ALL_EXCEPT_FORCE = load_excluded_apps(APPS_CONFIG_PATH)
+
+def reload_config():
+    """
+    重新加载配置文件，包括排除列表和强制更新列表。
+    Reload configuration files including exclusion and force update lists.
+    除外リストと強制更新リストを含む設定ファイルを再読み込みします。
+    """
+    global EXCLUDED_APPS, FORCE_UPDATE_APPS, SKIP_ALL_EXCEPT_FORCE, APP_PATHS, APP_ADMIN_FLAGS
+    EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS, SKIP_ALL_EXCEPT_FORCE = load_excluded_apps(APPS_CONFIG_PATH)

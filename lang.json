@@ -1,6 +1,7 @@
 {
   "zh": {
     "titles": ["ID", "版本", "可用"],
+    "winget_skip_info": ["显式目标"],
     "all_latest": "所有应用均为最新版本。",
     "found_updates": "发现有更新的应用，正在准备...",
     "skip_user": "跳过用户指定更新: {appID} [{appVer} -> {appNew}]",
@@ -21,6 +22,7 @@
   },
   "ja": {
     "titles": ["ID", "バージョン", "利用可能"],
+    "winget_skip_info": ["明示的ターゲット"],
     "all_latest": "すべてのアプリは最新バージョンです。",
     "found_updates": "更新が見つかりました、準備中...",
     "skip_user": "ユーザー指定の更新をスキップ: {appID} [{appVer} -> {appNew}]",
@@ -41,6 +43,7 @@
   },
   "en": {
     "titles": ["ID", "Version", "Available"],
+    "winget_skip_info": ["Explicit Target"],
     "all_latest": "All apps are up to date.",
     "found_updates": "Updates found, preparing...",
     "skip_user": "Skip user-specified update: {appID} [{appVer} -> {appNew}]",

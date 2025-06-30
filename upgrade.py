@@ -150,9 +150,9 @@ def check_and_update_apps(dry_run: bool = False) -> None:
 
 def monitor_updates(dry_run: bool = False, once: bool = False) -> None:
     """
-    定时或单次循环检查升级。
-    Periodically or once checks for upgrades.
-    定期または一度だけアップグレードをチェックします。
+    定时或单次循环检查升级。每轮循环开始前重新加载配置。
+    Periodically or once checks for upgrades, reloading config before each cycle.
+    定期または一度だけアップグレードをチェックします。サイクル毎に設定を再読み込みします。
     :param dry_run: 是否为 dry-run 预览模式
     :param dry_run: Whether it is a dry-run preview mode
     :param dry_run: ドライランプレビュー モードであるかどうか
@@ -160,7 +160,10 @@ def monitor_updates(dry_run: bool = False, once: bool = False) -> None:
     :param once: Whether to execute only once
     :param once: 一度だけ実行するかどうか
     """
+    from config import reload_config  # 在函数内部导入以避免循环引用
     while True:
+        # 重新加载配置，确保使用最新的排除和强制更新列表
+        reload_config()
         check_and_update_apps(dry_run=dry_run)
         nowtime = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
         output.info(LANG_PACK['update_done'].format(nowtime=nowtime))
