@@ -1,7 +1,7 @@
 {
   "zh": {
     "titles": ["ID", "版本", "可用"],
-    "winget_skip_info": ["显式目标"],
+    "winget_skip_info": "显式目标",
     "all_latest": "所有应用均为最新版本。",
     "found_updates": "发现有更新的应用，正在准备...",
     "skip_user": "跳过用户指定更新: {appID} [{appVer} -> {appNew}]",
@@ -18,11 +18,13 @@
     "launch_app_error": "无法启动应用 {appID}: {error}",
     "arg_dry_run": "仅预览将要升级的应用，不执行实际升级",
     "arg_once": "只执行一次升级检查，不进入循环",
-    "app_description": "AutoUpgradeApp - winget 自动升级工具"
+    "app_description": "AutoUpgradeApp - winget 自动升级工具",
+    "upgrade_success_keywords": ["成功", "已成功", "已升级", "已完成"],
+    "update_fail": "检测到更新失败: {appID}，winget 输出: {stdout}"
   },
   "ja": {
     "titles": ["ID", "バージョン", "利用可能"],
-    "winget_skip_info": ["明示的ターゲット"],
+    "winget_skip_info": "明示的ターゲット",
     "all_latest": "すべてのアプリは最新バージョンです。",
     "found_updates": "更新が見つかりました、準備中...",
     "skip_user": "ユーザー指定の更新をスキップ: {appID} [{appVer} -> {appNew}]",
@@ -39,11 +41,13 @@
     "launch_app_error": "アプリ {appID} を起動できません: {error}",
     "arg_dry_run": "アップグレードするアプリをプレビューするだけで、実際のアップグレードは実行しません",
     "arg_once": "1回だけアップグレードチェックを実行し、ループに入らない",
-    "app_description": "AutoUpgradeApp - winget 自動アップグレードツール"
+    "app_description": "AutoUpgradeApp - winget 自動アップグレードツール",
+    "upgrade_success_keywords": ["成功", "完了", "正常に", "アップグレードされました"],
+    "update_fail": "更新失敗を検出: {appID}、winget 出力: {stdout}"
   },
   "en": {
     "titles": ["ID", "Version", "Available"],
-    "winget_skip_info": ["Explicit Target"],
+    "winget_skip_info": "Explicit Target",
     "all_latest": "All apps are up to date.",
     "found_updates": "Updates found, preparing...",
     "skip_user": "Skip user-specified update: {appID} [{appVer} -> {appNew}]",
@@ -60,6 +64,8 @@
     "launch_app_error": "Failed to launch application {appID}: {error}",
     "arg_dry_run": "Preview the apps to be upgraded, do not perform actual upgrade",
     "arg_once": "Perform upgrade check only once, do not enter loop",
-    "app_description": "AutoUpgradeApp - winget auto upgrade tool"
+    "app_description": "AutoUpgradeApp - winget auto upgrade tool",
+    "upgrade_success_keywords": ["Successfully", "completed", "successfully"],
+    "update_fail": "Detected update failure: {appID}, winget output: {stdout}"
   }
 }

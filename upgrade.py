@@ -80,6 +80,7 @@ def process_upgrade_item(appID: str, appVer: str, appNew: str, line: str, col_po
     if SKIP_ALL_EXCEPT_FORCE and not is_force_update:
         output.info(LANG_PACK['skip_user'].format(appID=appID, appVer=appVer, appNew=appNew))
         return
+    
     if is_excluded_app(line, EXCLUDED_APPS) and not is_force_update:
         if not any(app in line for app in DEFAULT_EXCLUDED_APPS):
             output.info(LANG_PACK['skip_user'].format(appID=appID, appVer=appVer, appNew=appNew))
@@ -92,13 +93,26 @@ def process_upgrade_item(appID: str, appVer: str, appNew: str, line: str, col_po
         output.info(f"[DRY-RUN] winget upgrade --id {appID} --source winget")
         return
     try:
-        update_result = subprocess.Popen(["winget", "upgrade", "--id", appID, "--source", "winget"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8")
+        # 实时读取 winget 输出并用 \r 覆盖同一行
+        update_result = subprocess.Popen([
+            "winget", "upgrade", "--id", appID, "--source", "winget"
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1)
+        all_stdout = ""
+        while True:
+            line = update_result.stdout.readline()
+            if not line:
+                break
+            print(line.rstrip("\n"), end="\r", flush=True)
+            all_stdout += line
         stdout, stderr = update_result.communicate()
+        all_stdout += stdout  # 追加剩余内容
         if stderr:
             output.error(LANG_PACK['error'].format(stderr=stderr))
-        else:
+        elif any(s in all_stdout for s in LANG_PACK['upgrade_success_keywords']):
             output.info(LANG_PACK['update_success'].format(appID=appID, appNew=appNew))
             launch_app_by_id(appID)
+        else:
+            output.error(LANG_PACK['update_fail'].format(appID=appID, stdout=all_stdout.strip().replace('\n', ' ')))
     except Exception as e:
         output.error(f"[EXCEPTION] {e}")
         output.error(traceback.format_exc())
