@@ -1,5 +1,9 @@
 # AutoUpgradeApp.py
 
+**其他语言版本 / Other Languages / 他の言語版:**
+- [English](README_EN.md)
+- [日本語](README_JA.md)
+
 本脚本用于自动检查并升级 Windows 应用（基于 Windows 包管理器 winget）。  
 支持多语言输出、用户自定义排除和强制更新列表，并记录更新活动。  
 脚本设计为持续运行，每24小时检查一次更新。
@@ -28,7 +32,8 @@
 
 - **check_and_update_apps()**  
   使用 winget 检查可用更新。  
-  跳过排除列表中的应用（除非在强制更新列表中），执行更新并记录结果。
+  跳过排除列表中的应用（除非在强制更新列表中），执行更新并记录结果。  
+  **新功能：实时显示winget升级过程的输出信息。**
 
 - **substr_by_display_width(s, start, length)**  
   按显示宽度截取字符串，兼容宽字符。
@@ -45,13 +50,13 @@
 ## 使用方法
 
 1. 直接运行脚本，开始持续自动更新监控。
-2. 将 `lang.json` 和 `update_policy.txt` 放在同一目录下，用于语言和排除配置。
+2. 将 `lang.json`、`update_policy.txt`、`proxy.txt`（可选）和 `check_interval.txt`（可选）放在同一目录下，用于语言、排除配置、代理设置和检查间隔配置。
 
 ## 注意事项
 
 1. 确保安装了 winget，并已配置好环境变量。
 2. 运行脚本需要管理员权限，以便执行更新操作。
-3. 根据需要调整 `update_policy.txt` 和 `lang.json` 文件中的内容。
+3. 根据需要调整 `update_policy.txt`、`lang.json`、`proxy.txt` 和 `check_interval.txt` 文件中的内容。
    特别是lang.json里英文与日文版的titles和all_latest的设定由于系统限制未经测试，请自行修改。
 4. 运行脚本时请保持网络连接，以便下载更新。
 5. 如果在中国大陆使用，可能需要使用魔法。
@@ -83,8 +88,101 @@ AppID4
   - `|admin` 表示以管理员权限启动。
 
 ### 兼容性说明
-- 如果未设置 `*`，则按排除/强制规则正常处理。
-- 如果设置了 `*`，则只处理强制对象，其余全部跳过并提示。
+- 如果未设置 `*`，则正常的排除/强制规则生效。
+- 如果设置了 `*`，则仅处理强制对象，其他所有对象都会被跳过并显示通知。
+
+## 代理服务器配置
+
+如果需要通过代理服务器访问网络，可以创建 `proxy.txt` 文件来设置代理。
+
+### proxy.txt 配置格式
+
+```text
+# 代理服务器配置文件
+# 格式支持以下几种：
+http://proxy.example.com:8080
+https://proxy.example.com:8080
+proxy.example.com:8080  # 自动添加 http://
+
+# 示例：
+http://127.0.0.1:8080
+192.168.1.100:8080
+```
+
+### 代理配置说明
+
+- 如果不需要代理，删除 `proxy.txt` 文件或注释掉所有行即可。
+- 支持 HTTP 和 HTTPS 代理协议。
+- 如果只提供 `host:port` 格式，会自动添加 `http://` 前缀。
+- 代理配置会应用于所有 winget 网络请求。
+- 配置更改后会在下次循环时自动重新加载。
+
+## 检查间隔配置
+
+可以通过 `check_interval.txt` 文件自定义更新检查的时间间隔。
+
+### check_interval.txt 配置格式
+
+```text
+# 检查间隔配置文件
+# 支持的格式:
+# - 数字 + h/H: 小时
+# - 数字 + m/M: 分钟  
+# - 数字 + s/S: 秒
+# - 纯数字: 秒
+
+# 示例:
+24h     # 24小时
+12h     # 12小时
+6h      # 6小时
+30m     # 30分钟
+3600s   # 3600秒
+86400   # 86400秒（24小时）
+```
+
+### 检查间隔配置说明
+
+- 如果文件不存在，默认使用24小时间隔。
+- 支持小数，如 `1.5h`（1.5小时）或 `90m`（90分钟）。
+- 配置更改后会在下次循环时自动重新加载。
+- 建议最小间隔不少于30分钟，避免过于频繁的检查。
+
+## 实时显示功能
+
+**新功能：实时显示 winget 升级过程**
+
+应用升级时现在支持实时显示 winget 的输出信息，让用户能够即时了解升级进度和状态。
+
+### 实时显示特性
+
+- ✅ **实时输出**: 升级过程中实时显示 winget 的所有输出信息
+- ✅ **多语言支持**: 支持中文、英文、日文的实时输出标识
+- ✅ **错误处理**: 智能处理编码问题和异常情况
+- ✅ **保持兼容**: 保持原有功能的完整性，不影响现有逻辑
+- ✅ **清晰格式**: 使用分隔线和缩进清晰地标识实时输出内容
+
+### 实时显示示例
+
+```
+开始升级 Microsoft.VisualStudioCode，实时输出如下：
+==================================================
+  Found Microsoft Visual Studio Code [Microsoft.VisualStudioCode] Version 1.85.0
+  This application is licensed to you by its owner.
+  Downloading https://github.com/microsoft/vscode/releases/download/1.85.1/VSCodeSetup-x64-1.85.1.exe
+  ██████████████████████████████  32.0 MB / 32.0 MB
+  Successfully verified installer hash
+  Starting package install...
+  Successfully installed
+==================================================
+更新成功: Microsoft.VisualStudioCode [1.85.1]
+```
+
+### 技术实现
+
+- 使用 `subprocess.Popen` 创建非阻塞进程
+- 通过 `readline()` 实时读取输出流
+- 自动处理 Windows 系统的 GBK 编码
+- 智能错误处理和异常捕获
 
 ## 命令行参数与高级用法
 
@@ -136,6 +234,18 @@ A: 推荐使用 `--once` 或 `--dry-run --once` 参数，结合计划任务定�
 **Q7: 支持哪些 Windows 版本？**  
 A: 仅支持 Windows 10/11，需预装 winget 1.3+ 和 Python 3.7+。
 
+**Q8: 如何配置代理服务器？**  
+A: 创建 `proxy.txt` 文件，填入代理服务器地址（如 `http://proxy.example.com:8080`）。不需要代理时删除该文件即可。配置会在下次循环时自动重新加载。
+
+**Q9: 如何修改检查更新的时间间隔？**  
+A: 创建或编辑 `check_interval.txt` 文件，设置期望的时间间隔。支持格式如 `24h`（24小时）、`30m`（30分钟）、`3600s`（3600秒）或 `86400`（纯数字秒）。
+
+**Q10: 出现 "AttributeError: '_io.TextIOWrapper' object has no attribute 'mode'" 错误怎么办？**  
+A: 这是早期版本中文本模式检测的问题，已在最新版本中修复。更新到最新版本即可解决。如仍有问题，请重新下载完整代码。
+
+**Q11: 为什么还会显示"跳过用户指定更新: 但需要显式目标才能进行升级"这样的信息？**  
+A: 这是winget的提示信息行，不是真正的应用更新项。最新版本已经改进了解析逻辑，会自动过滤这类异常格式的提示行，避免误报。
+
 ## 主要变更与最佳实践
 
 - 支持 update_policy.txt 中 `*` 规则，仅强制对象更新，其余全部跳过。
@@ -168,347 +278,6 @@ A: 仅支持 Windows 10/11，需预装 winget 1.3+ 和 Python 3.7+。
 - 所有关键异常均详细输出堆栈信息，便于排查。
 - 主流程和 upgrade.py 关键异常处均使用 sys.exit(1)/sys.exit(0) 友好退出，适合自动化集成。
 - 建议结合 Windows 任务计划程序、CI/CD 等自动化工具，定期触发 `--once` 或 `--dry-run --once`。
-
----
-
-# AutoUpgradeApp.py (English)
-
-This script is used to automatically check and upgrade Windows applications (based on the Windows package manager winget).
-It supports multilingual output, user-defined exclusion and force-update lists, and logs update activities.
-The script is designed to run continuously, checking for updates every 24 hours.
-
-## Modules
-
-- `subprocess`: Run winget commands
-- `time`: Periodic checking
-- `os`: File and path operations
-- `keyboard`: Send hotkeys before and after updates
-- `datetime`: Record update timestamps
-- `unicodedata`: Handle display width for multilingual characters
-- `json`: Load language packs
-- `locale`: Detect system language
-
-## Main Functions
-
-- **load_lang_pack()**  
-  Loads the language pack from `lang.json` and returns a localized string dictionary based on the system language.
-
-- **get_default_excluded_apps()**  
-  Returns the default excluded app names and table headers.
-
-- **load_excluded_apps(file_path)**  
-  Loads exclusion and force-update lists from a file, returning two lists.
-
-- **check_and_update_apps()**  
-  Uses winget to check for available updates.  
-  Skips apps in the exclusion list (unless in the force-update list), performs updates, and logs results.
-
-- **substr_by_display_width(s, start, length)**  
-  Extracts substrings by display width, compatible with wide characters.
-
-- **get_display_width(s)**  
-  Calculates the display width of a string, considering wide characters.
-
-- **monitor_updates()**  
-  Main loop, triggers update checks every 24 hours.  
-
-- **get_current_datetime_string()**  
-  Returns the formatted current date and time.
-
-## Usage
-
-1. Run the script directly to start continuous automatic update monitoring.
-2. Place `lang.json` and `update_policy.txt` in the same directory for language and exclusion configuration.
-
-## Notes
-1. Make sure winget is installed and added to the system PATH.
-2. Run the script with administrator privileges to perform updates.
-3. Adjust the contents of `update_policy.txt` and `lang.json` as needed.
-   Especially, the `titles` and `all_latest` settings for English and Japanese in lang.json are untested due to system limitations—please modify as necessary.
-4. Keep your network connected while running the script to download updates.
-5. If using in mainland China, magic may be required for special reasons.
-
-## update_policy.txt Usage
-
-- Each line specifies an app name to be excluded from automatic updates (can be ID, display name, etc., supports fuzzy matching, case-insensitive).
-- Lines starting with an exclamation mark `!` indicate "force update" apps (these will be updated even if in the exclude list).
-- You can specify whether to launch the app with admin privileges by adding `|admin` after the path.
-- Blank lines or lines with only whitespace are ignored.
-- Special rule:
-  - A single line `*` means "only update force-update apps, skip all other apps", and will display information about all skipped apps in the console.
-
-### Example:
-
-```
-# Only update force-update apps, skip all others
-*
-!AppID1=C:\Path\To\App1.exe|admin
-!AppID2=C:\Path\To\App2.exe
-AppID3
-AppID4
-!AppID3
-```
-
-- In the above example:
-  - Only AppID1 and AppID2 will be force-updated (and launched as configured), AppID3 will also be force-updated. AppID4 and all other apps will be skipped, and skip information will be displayed in the console.
-  - `!AppID3` indicates a force update for AppID3 without launching the specified app.
-  - `|admin` means to launch with admin privileges.
-
-### Compatibility Notes
-- If `*` is not set, the normal exclude/force-update rules apply.
-- If `*` is set, only force-update apps are processed, all others are skipped with a prompt.
-
-## Command Line Arguments and Advanced Usage
-
-- `--dry-run`: Preview the apps to be upgraded without performing the actual upgrade and launch (suitable for testing and scheduled task preview).
-- `--once`: Perform the upgrade check only once, without entering the 24-hour loop (suitable for scheduled tasks or manual triggers).
-
-### Examples:
-
-```bash
-python AutoUpgradeApp.py --dry-run
-python AutoUpgradeApp.py --once
-python AutoUpgradeApp.py --dry-run --once
-```
-
-## Business Process Structure
-
-- The main entry `main()` is responsible for parameter parsing, permission checking, and dispatching the main loop.
-- `monitor_updates()` supports timed loops or single execution.
-- `check_and_update_apps()` is responsible for traversing all upgradable apps, judging and scheduling upgrades according to the policy.
-- `process_upgrade_item()` handles the business logic of upgrading/skipping/forcing/excluding a single app.
-- `launch_app_by_id()` supports automatically launching specified apps after the upgrade.
-
-## Output Behavior of Launched Apps
-
-- The standard output and error output of apps launched via `launch_app_by_id()` are redirected (not displayed in the current console window) to avoid interfering with the main script logs and outputs.
-- This behavior applies to all apps that are automatically launched after an upgrade, regardless of whether they are launched with admin privileges.
-- To view the output of launched apps, please run the corresponding program manually.
-
-## Common Issues (FAQ)
-**Q1: Why is there no output from the apps launched after the upgrade?**
-A: All apps launched via `launch_app_by_id()` have their standard output and error output redirected (not displayed in the current console window) to avoid interfering with the main script logs. To view the output, please run the corresponding program manually.
-
-**Q2: How can I only upgrade certain apps or exclude some apps?**
-A: Please edit `update_policy.txt` and fill in the exclusion and force-update objects according to the rules. You can use the `*` rule to only upgrade force-update objects, skipping all others.
-
-**Q3: Why does the script require admin privileges?**
-A: Most winget operations for upgrading applications require admin privileges; otherwise, they may fail or be partially ineffective.
-
-**Q4: Where are the log files? How can I customize them?**
-A: The log file path and format can be adjusted in `output.py`, and all info/warn/error level logs will be recorded.
-
-**Q5: Why are some prompts incomplete in the English/Japanese interface?**
-A: Due to system limitations, the `titles`, `all_latest`, and other fields in `lang.json` for English and Japanese have not been fully tested. It is recommended to adjust them based on actual output.
-
-**Q6: How to integrate with Windows Task Scheduler or CI/CD?**
-A: It is recommended to use `--once` or `--dry-run --once` parameters, combined with scheduled tasks for regular triggering. See the "Command Line Arguments and Advanced Usage" section for details.
-
-**Q7: Which Windows versions are supported?**
-A: Only Windows 10/11 is supported, and winget 1.3+ and Python 3.7+ must be pre-installed.
-
-## Major Changes and Best Practices
-
-- Support for the `*` rule in update_policy.txt, only force-update objects are updated, and all others are skipped.
-- Separation of multilingual and configuration loading for easy customization and internationalization.
-- Separation of utility functions and main processes, clear structure, and easy maintenance.
-- Support for dry-run preview and single execution, suitable for automated operations and testing.
-- It is recommended to use the Windows Task Scheduler to trigger `--once` or `--dry-run --once` regularly.
-
-## Project Structure & Module Responsibilities
-
-- `AutoUpgradeApp.py`: Main entry, only responsible for argument parsing, permission checking, and main loop dispatch.
-- `upgrade.py`: Core business logic for upgrade, traversal, and app launching.
-- `config.py`: Configuration and multilingual loading, policy file parsing.
-- `utils.py`: General utility functions (string width, time, etc.).
-- `output.py`: Unified output and logging, supports info/warn/error levels and log files.
-
-## Type Annotations & Documentation
-
-- All functions and main variables are annotated with types for better type safety and readability.
-- All modules have detailed docstrings for IDE/automation tool integration and secondary development.
-
-## Logging & Output Mechanism
-
-- All output is encapsulated via output.py, supporting info/warn/error levels.
-- Log file support for troubleshooting and automated operations.
-- Console output and logging are decoupled for customization and integration.
-
-## Exception Handling & Automation Integration
-
-- All key exceptions output detailed stack traces for troubleshooting.
-- Main process and key exceptions in upgrade.py use sys.exit(1)/sys.exit(0) for automation-friendly exit codes.
-- Recommended to use with Windows Task Scheduler, CI/CD, etc., to regularly trigger `--once` or `--dry-run --once`.
-
----
-
-# AutoUpgradeApp.py（日本語）
-
-このスクリプトは、Windows パッケージマネージャー winget を利用して、Windows アプリの自動チェックとアップグレードを行います。
-多言語出力、ユーザー定義の除外・強制更新リスト、更新活動の記録に対応しています。
-スクリプトは常駐型で、24時間ごとに自動で更新をチェックします。
-
-## モジュール
-
-- `subprocess`：winget コマンドの実行
-- `time`：定期的なチェック
-- `os`：ファイルとパスの操作
-- `keyboard`：更新前後にホットキーを送信
-- `datetime`：更新タイムスタンプの記録
-- `unicodedata`：多言語文字の表示幅処理
-- `json`：言語パックの読み込み
-- `locale`：システム言語の検出
-
-## 主な関数
-
-- **load_lang_pack()**  
-  `lang.json` から言語パックを読み込み、システム言語に応じたローカライズ文字列辞書を返します。
-
-- **get_default_excluded_apps()**  
-  デフォルトの除外アプリ名と表ヘッダーを返します。
-
-- **load_excluded_apps(file_path)**  
-  ファイルから除外・強制更新リストを読み込み、2つのリストを返します。
-
-- **check_and_update_apps()**  
-  winget で利用可能な更新をチェックします。  
-  除外リストにあるアプリ（強制更新リストを除く）をスキップし、更新を実行して結果を記録します。
-
-- **substr_by_display_width(s, start, length)**  
-  表示幅で文字列を抽出し、全角文字にも対応します。
-
-- **get_display_width(s)**  
-  文字列の表示幅を計算します（全角文字対応）。
-
-- **monitor_updates()**  
-  メインループで24時間ごとに更新チェックを実行。  
-
-- **get_current_datetime_string()**  
-  現在の日付と時刻をフォーマットして返します。
-
-## 使い方
-
-1. スクリプトを直接実行すると、自動更新監視が開始されます。
-2. `lang.json` と `update_policy.txt` を同じディレクトリに配置し、言語と除外設定を行ってください。
-
-## 注意事項
-1. winget がインストールされ、システムの PATH に設定されていることを確認してください。
-2. 更新操作を行うため、管理者権限でスクリプトを実行してください。
-3. 必要に応じて `update_policy.txt` および `lang.json` の内容を調整してください。
-   特に lang.json の英語・日本語の `titles` と `all_latest` の設定はシステム制限により未検証です。必要に応じて修正してください。
-4. 更新をダウンロードするため、スクリプト実行中はネットワーク接続を維持してください。
-5. 中国本土で使用する場合、特別な理由で魔法が必要な場合があります。
-
-## update_policy.txt の使い方
-
-- 各行に自動更新から除外したいアプリ名を記載します（ID、表示名など、あいまい一致・大文字小文字無視に対応）。
-- 行頭に感嘆符 `!` を付けると「強制更新」アプリとなり、除外リストにあっても必ず更新されます。
-- パスの後に `|admin` を追加することで、アプリを管理者権限で起動するかどうかを指定できます。
-- 空行や空白のみの行は無視されます。
-- 特殊ルール：
-  - 単独一行 `*` は「強制更新対象のみを更新し、他のすべてのアプリをスキップする」ことを意味し、スキップされたすべてのアプリの情報がコンソールに表示されます。
-
-### 例：
-
-```
-# 強制更新対象のみを更新し、他のすべてのアプリをスキップ
-*
-!AppID1=C:\Path\To\App1.exe|admin
-!AppID2=C:\Path\To\App2.exe
-AppID3
-AppID4
-!AppID3
-```
-上記の例では：
-- AppID1 と AppID2 のみが強制的にアップデートされ（設定に従って指定アプリも起動）、AppID3 も強制的にアップデートされます。AppID4 およびその他すべてのアプリはスキップされ、スキップ情報がコンソールに表示されます。
-- `!AppID3` は AppID3 を強制的にアップデートし、指定されたアプリを起動しないことを意味します。
-- `|admin` は管理者権限で起動することを意味します。
-
-### 互換性の注意事項
-- `*` が設定されていない場合、通常の除外/強制更新ルールが適用されます。
-- `*` が設定されている場合、強制更新対象のみが処理され、他のすべてがスキップされ、プロンプトが表示されます。
-
-## コマンドライン引数と高度な使い方
-
-- `--dry-run`：アップグレード対象アプリをプレビューのみ行い、実際のアップグレードや起動は行いません（テストや定期タスクのプレビューに最適）。
-- `--once`：アップグレードチェックを一度だけ実行し、24時間ループには入りません（定期タスクや手動実行に適しています）。
-
-### 例：
-
-```bash
-python AutoUpgradeApp.py --dry-run
-python AutoUpgradeApp.py --once
-python AutoUpgradeApp.py --dry-run --once
-```
-
-## 業務プロセス構成
-
-- メインエントリ `main()` は引数解析、権限チェック、メインループの調整を担当します。
-- `monitor_updates()` は定期ループまたは単回実行に対応します。
-- `check_and_update_apps()` はアップグレード可能なアプリを巡回し、ポリシーに従ってアップグレードを判断・実行します。
-- `process_upgrade_item()` は個々のアプリのアップグレード／スキップ／強制／除外などの業務ロジックを処理します。
-- `launch_app_by_id()` はアップグレード後に指定アプリの自動起動をサポートします。
-
-## 起動アプリの出力動作
-
-- `launch_app_by_id()` で起動されたアプリの標準出力とエラー出力はリダイレクトされ、現在のコンソールウィンドウには表示されません。これにより、メインスクリプトのログや出力に干渉しません。
-- この動作は、管理者権限で起動されるかどうかに関わらず、アップグレード後に自動的に起動されるすべてのアプリに適用されます。
-- 起動されたアプリの出力を確認するには、対応するプログラムを手動で実行してください。
-
-## よくある質問（FAQ）
-**Q1: アップグレード後に自動起動したアプリの出力がないのはなぜですか？**
-A: `launch_app_by_id()` で起動されたアプリの標準出力とエラー出力はリダイレクトされ、現在のコンソールウィンドウには表示されません。これにより、メインスクリプトのログに干渉しません。出力を確認するには、手動で対応するプログラムを実行してください。
-
-**Q2: どうすれば一部のアプリのみをアップグレードしたり、特定のアプリを除外できますか？**
-A: `update_policy.txt` を編集し、除外と強制更新対象をルールに従って記入してください。`*` ルールを使用して強制更新対象のみをアップグレードし、他はすべてスキップできます。
-
-**Q3: スクリプトはなぜ管理者権限が必要ですか？**
-A: winget のほとんどのアプリアップグレード操作は管理者権限を必要とします。そうしないと、失敗したり部分的に無効になることがあります。
-
-**Q4: ログファイルはどこにありますか？カスタマイズは可能ですか？**
-A: ログファイルのパスと形式は `output.py` で調整可能で、すべての info/warn/error レベルのログが記録されます。
-
-**Q5: 英語/日本語インターフェースで一部のプロンプトが不完全なのはなぜですか？**
-A: システム制限により、`lang.json` の英語と日本語の `titles`、`all_latest` などのフィールドは完全にテストされていません。実際の出力に基づいて調整することをお勧めします。
-
-**Q6: Windows タスクスケジューラや CI/CD と統合するには？**
-A: `--once` または `--dry-run --once` パラメータを使用し、定期的にトリガーするためにスケジュールされたタスクと組み合わせることをお勧めします。詳細は「コマンドライン引数と高度な使い方」セクションを参照してください。
-
-**Q7: どの Windows バージョンがサポートされていますか？**
-A: Windows 10/11 のみサポートされており、winget 1.3+ と Python 3.7+ が事前にインストールされている必要があります。
-
-## 主な変更点とベストプラクティス
-
-- update_policy.txt の `*` ルールに対応し、強制対象のみアップデートし、それ以外はすべてスキップします。
-- 多言語・設定の読み込みを分離し、カスタマイズや国際化が容易です。
-- ユーティリティ関数とメイン処理を分離し、構造が明確で保守しやすくなっています。
-- dry-run プレビューや単回実行に対応し、自動運用やテストに最適です。
-- Windows タスクスケジューラと組み合わせて `--once` や `--dry-run --once` の定期実行を推奨します。
-
-## プロジェクト構成とモジュールの役割
-
-- `AutoUpgradeApp.py`：メインエントリ。引数解析、権限チェック、メインループの調整のみ担当。
-- `upgrade.py`：アップグレード・巡回・起動などのコア業務ロジック。
-- `config.py`：設定・多言語読み込み、ポリシーファイル解析。
-- `utils.py`：汎用ユーティリティ関数（文字幅、時刻処理など）。
-- `output.py`：統一出力・ログ。info/warn/error 各レベルとログファイル対応。
-
-## 型アノテーションとドキュメント
-
-- すべての関数・主要変数に型アノテーションを付与し、型安全性と可読性を向上。
-- すべてのモジュールに詳細なドキュメント文字列を追加し、IDEや自動化ツールとの連携や二次開発に最適。
-
-## ログ・出力メカニズム
-
-- すべての出力は output.py でラップされ、info/warn/error 各レベルに対応。
-- ログファイル記録に対応し、トラブルシューティングや自動運用に便利。
-- コンソール出力とログを分離し、カスタマイズや統合が容易。
-
-## 例外処理と自動化統合
-
-- すべての主要例外で詳細なスタックトレースを出力し、問題解析を容易に。
-- メイン処理や upgrade.py の主要例外で sys.exit(1)/sys.exit(0) により自動化に優しい終了コードを返却。
-- Windows タスクスケジューラや CI/CD などの自動化ツールと組み合わせ、`--once` や `--dry-run --once` の定期実行を推奨。
 
 ---
 

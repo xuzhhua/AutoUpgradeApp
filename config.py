@@ -11,7 +11,7 @@ import os
 import sys
 import json
 import locale
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 # 读取多语言配置
 # Read multi-language configuration
@@ -137,11 +137,112 @@ def load_excluded_apps(file_path: str) -> Tuple[List[str], List[str], Dict[str, 
 APPS_CONFIG_PATH: str = os.path.join(BASE_DIR, 'update_policy.txt')
 EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS, SKIP_ALL_EXCEPT_FORCE = load_excluded_apps(APPS_CONFIG_PATH)
 
+# 代理服务器配置
+# Proxy server configuration  
+# プロキシサーバー設定
+PROXY_CONFIG_PATH: str = os.path.join(BASE_DIR, 'proxy.txt')
+
+def load_proxy_config(file_path: str) -> Optional[str]:
+    """
+    加载代理服务器配置。
+    Load proxy server configuration.
+    プロキシサーバー設定を読み込みます。
+    :param file_path: 代理配置文件路径
+    :param file_path: Proxy configuration file path
+    :param file_path: プロキシ設定ファイルパス
+    :return: 代理服务器URL或None
+    :return: Proxy server URL or None
+    :return: プロキシサーバーURLまたはNone
+    """
+    if not os.path.exists(file_path):
+        return None
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            for line in file:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                # 支持 http://proxy:port 或 https://proxy:port 格式
+                if line.startswith(('http://', 'https://')):
+                    return line
+                # 支持 proxy:port 格式，默认添加 http://
+                elif ':' in line and not line.startswith(('http://', 'https://')):
+                    return f"http://{line}"
+        return None
+    except Exception as e:
+        print(f"读取代理配置文件失败: {e}")
+        return None
+
+PROXY_SERVER: Optional[str] = load_proxy_config(PROXY_CONFIG_PATH)
+
+# 检查间隔配置
+# Check interval configuration
+# チェック間隔設定
+CHECK_INTERVAL_CONFIG_PATH: str = os.path.join(BASE_DIR, 'check_interval.txt')
+
+def load_check_interval(file_path: str) -> int:
+    """
+    加载检查间隔配置（单位：秒）。
+    Load check interval configuration (in seconds).
+    チェック間隔設定を読み込みます（秒単位）。
+    :param file_path: 间隔配置文件路径
+    :param file_path: Interval configuration file path
+    :param file_path: 間隔設定ファイルパス
+    :return: 检查间隔秒数，默认为86400秒（24小时）
+    :return: Check interval in seconds, default 86400 seconds (24 hours)
+    :return: チェック間隔秒数、デフォルト86400秒（24時間）
+    """
+    default_interval = 86400  # 24小时
+    
+    if not os.path.exists(file_path):
+        return default_interval
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            for line in file:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                
+                # 解析不同的时间格式
+                if line.endswith('h') or line.endswith('H'):  # 小时
+                    try:
+                        hours = float(line[:-1])
+                        return int(hours * 3600)
+                    except ValueError:
+                        continue
+                elif line.endswith('m') or line.endswith('M'):  # 分钟
+                    try:
+                        minutes = float(line[:-1])
+                        return int(minutes * 60)
+                    except ValueError:
+                        continue
+                elif line.endswith('s') or line.endswith('S'):  # 秒
+                    try:
+                        seconds = float(line[:-1])
+                        return int(seconds)
+                    except ValueError:
+                        continue
+                else:  # 纯数字，默认为秒
+                    try:
+                        return int(float(line))
+                    except ValueError:
+                        continue
+        
+        return default_interval
+    except Exception as e:
+        print(f"读取检查间隔配置文件失败: {e}")
+        return default_interval
+
+CHECK_INTERVAL: int = load_check_interval(CHECK_INTERVAL_CONFIG_PATH)
+
 def reload_config():
     """
-    重新加载配置文件，包括排除列表和强制更新列表。
-    Reload configuration files including exclusion and force update lists.
-    除外リストと強制更新リストを含む設定ファイルを再読み込みします。
+    重新加载配置文件，包括排除列表、强制更新列表、代理配置和检查间隔。
+    Reload configuration files including exclusion lists, force update lists, proxy configuration and check interval.
+    除外リスト、強制更新リスト、プロキシ設定、チェック間隔を含む設定ファイルを再読み込みします。
     """
-    global EXCLUDED_APPS, FORCE_UPDATE_APPS, SKIP_ALL_EXCEPT_FORCE, APP_PATHS, APP_ADMIN_FLAGS
+    global EXCLUDED_APPS, FORCE_UPDATE_APPS, SKIP_ALL_EXCEPT_FORCE, APP_PATHS, APP_ADMIN_FLAGS, PROXY_SERVER, CHECK_INTERVAL
     EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS, SKIP_ALL_EXCEPT_FORCE = load_excluded_apps(APPS_CONFIG_PATH)
+    PROXY_SERVER = load_proxy_config(PROXY_CONFIG_PATH)
+    CHECK_INTERVAL = load_check_interval(CHECK_INTERVAL_CONFIG_PATH)

@@ -1,0 +1,26 @@
+# 检查间隔配置文件
+# Check Interval Configuration File  
+# チェック間隔設定ファイル
+#
+# 支持的格式 / Supported formats / サポートされている形式:
+# - 数字 + h/H: 小时 (hours) / 時間
+# - 数字 + m/M: 分钟 (minutes) / 分  
+# - 数字 + s/S: 秒 (seconds) / 秒
+# - 纯数字: 秒 (seconds) / 秒
+#
+# 示例 / Examples / 例:
+# 24h     # 24小时 / 24 hours / 24時間
+# 12h     # 12小时 / 12 hours / 12時間
+# 6h      # 6小时 / 6 hours / 6時間
+# 30m     # 30分钟 / 30 minutes / 30分
+# 3600s   # 3600秒 / 3600 seconds / 3600秒
+# 86400   # 86400秒（24小时）/ 86400 seconds (24 hours) / 86400秒（24時間）
+#
+# 默认值: 24小时 (86400秒)
+# Default: 24 hours (86400 seconds)  
+# デフォルト: 24時間（86400秒）
+
+# 设置检查间隔为24小时
+# Set check interval to 24 hours
+# チェック間隔を24時間に設定
+24h

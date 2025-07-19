@@ -1,0 +1,19 @@
+# 代理服务器配置文件
+# Proxy Server Configuration File
+# プロキシサーバー設定ファイル
+#
+# 格式 / Format / フォーマット:
+# http://proxy.example.com:8080
+# https://proxy.example.com:8080
+# proxy.example.com:8080 (自动添加 http://)
+#
+# 示例 / Examples / 例:
+# http://127.0.0.1:8080
+# https://proxy.company.com:3128
+# 192.168.1.100:8080
+#
+# 如果不需要代理，请删除此文件或注释掉所有行
+# If no proxy is needed, delete this file or comment out all lines
+# プロキシが不要な場合は、このファイルを削除するか、すべての行をコメントアウトしてください
+
+http://127.0.0.1:10808
