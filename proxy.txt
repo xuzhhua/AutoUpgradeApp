@@ -1,19 +1,51 @@
-# 代理服务器配置文件
-# Proxy Server Configuration File
-# プロキシサーバー設定ファイル
+# 代理服务器配置文件 - 支持协议特定配置
+# Proxy Server Configuration File - Protocol-specific Support
+# プロキシサーバー設定ファイル - プロトコル固有サポート
 #
 # 格式 / Format / フォーマット:
-# http://proxy.example.com:8080
-# https://proxy.example.com:8080
-# proxy.example.com:8080 (自动添加 http://)
+# 1. 通用代理 (所有协议使用同一代理) / Universal Proxy / 汎用プロキシ:
+#    all=http://proxy.example.com:8080
+#    all=socks5://proxy.example.com:1080
+#
+# 2. 协议特定代理 / Protocol-specific Proxy / プロトコル固有プロキシ:
+#    http=http://http-proxy.example.com:8080
+#    https=https://https-proxy.example.com:8080
+#    ftp=http://ftp-proxy.example.com:8080
+#    socks=socks5://socks-proxy.example.com:1080
+#
+# 3. 混合代理配置 / Mixed Proxy Configuration / 混合プロキシ設定:
+#    http=http://127.0.0.1:8080
+#    https=https://secure-proxy.company.com:3128
+#    socks=socks5://127.0.0.1:1080
+#
+# 支持的协议 / Supported Protocols / サポートされているプロトコル:
+# - http: HTTP代理
+# - https: HTTPS代理  
+# - ftp: FTP代理
+# - socks: SOCKS代理 (支持socks4://、socks5://、socks://)
+# - all: 通用代理 (覆盖所有协议)
 #
 # 示例 / Examples / 例:
-# http://127.0.0.1:8080
-# https://proxy.company.com:3128
-# 192.168.1.100:8080
+# all=http://127.0.0.1:8080
+# http=http://127.0.0.1:8080
+# https=https://proxy.company.com:3128
+# socks=socks5://127.0.0.1:1080
 #
 # 如果不需要代理，请删除此文件或注释掉所有行
 # If no proxy is needed, delete this file or comment out all lines
 # プロキシが不要な場合は、このファイルを削除するか、すべての行をコメントアウトしてください
 
-http://127.0.0.1:10808
+# 当前配置 / Current Configuration / 現在の設定:
+all=127.0.0.1:10808
+
+# 协议特定代理配置示例 / Protocol-specific proxy examples / プロトコル固有プロキシ例:
+# 混合代理模式 / Mixed proxy mode / 混合プロキシモード:
+# http=http://127.0.0.1:8080
+# https=https://secure-proxy.company.com:3128  
+# socks=socks5://127.0.0.1:1080
+# ftp=http://ftp-proxy.company.com:8080
+
+# 企业环境示例 / Enterprise environment example / 企業環境例:
+# http=http://corporate-proxy.company.com:8080
+# https=http://corporate-proxy.company.com:8080
+# socks=socks5://socks-proxy.company.com:1080

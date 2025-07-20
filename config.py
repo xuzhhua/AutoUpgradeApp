@@ -173,6 +173,70 @@ def load_proxy_config(file_path: str) -> Optional[str]:
         print(f"读取代理配置文件失败: {e}")
         return None
 
+def normalize_proxy_url(proxy_url: str) -> str:
+    """
+    标准化代理URL格式。
+    Normalize proxy URL format.
+    プロキシURLフォーマットを正規化します。
+    """
+    proxy_url = proxy_url.strip()
+    
+    # 如果已有协议前缀，直接返回
+    if proxy_url.startswith(('http://', 'https://', 'socks4://', 'socks5://', 'socks://')):
+        return proxy_url
+    
+    # 如果包含端口号但没有协议，默认添加 http://
+    if ':' in proxy_url:
+        return f"http://{proxy_url}"
+    
+    return proxy_url
+
+def load_protocol_proxy_config(file_path: str) -> Dict[str, str]:
+    """
+    加载协议特定的代理服务器配置。
+    Load protocol-specific proxy server configuration.
+    プロトコル固有のプロキシサーバー設定を読み込みます。
+    :param file_path: 代理配置文件路径
+    :param file_path: Proxy configuration file path  
+    :param file_path: プロキシ設定ファイルパス
+    :return: 协议到代理URL的映射字典
+    :return: Dictionary mapping protocols to proxy URLs
+    :return: プロトコルからプロキシURLへのマッピング辞書
+    """
+    proxy_configs = {}
+    
+    if not os.path.exists(file_path):
+        return proxy_configs
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            for line in file:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                
+                # 检查是否为新格式: protocol=proxy_url
+                if '=' in line:
+                    protocol, proxy_url = line.split('=', 1)
+                    protocol = protocol.strip().lower()
+                    proxy_url = proxy_url.strip()
+                    
+                    # 验证协议名称
+                    if protocol in ['http', 'https', 'ftp', 'socks', 'all']:
+                        proxy_configs[protocol] = normalize_proxy_url(proxy_url)
+                
+                else:
+                    # 兼容旧格式：单行代理URL，作为通用代理
+                    proxy_url = normalize_proxy_url(line)
+                    if proxy_url:
+                        proxy_configs['all'] = proxy_url
+                        break  # 旧格式只取第一个有效代理
+    
+    except Exception as e:
+        print(f"读取协议特定代理配置文件失败: {e}")
+    
+    return proxy_configs
+
 PROXY_SERVER: Optional[str] = load_proxy_config(PROXY_CONFIG_PATH)
 
 # 检查间隔配置

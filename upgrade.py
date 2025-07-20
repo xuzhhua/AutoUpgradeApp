@@ -83,17 +83,97 @@ def format_time_interval(seconds: int) -> str:
 
 def get_env_with_proxy() -> Dict[str, str]:
     """
-    获取包含代理设置的环境变量字典。
-    Get environment variables dict with proxy settings.
-    プロキシ設定を含む環境変数辞書を取得します。
+    获取包含代理设置的环境变量字典，支持协议特定的代理配置。
+    Get environment variables dict with protocol-specific proxy settings.
+    プロトコル固有のプロキシ設定を含む環境変数辞書を取得します。
     :return: 环境变量字典
     :return: Environment variables dict
     :return: 環境変数辞書
     """
     env = os.environ.copy()
-    if PROXY_SERVER:
-        env['HTTP_PROXY'] = PROXY_SERVER
-        env['HTTPS_PROXY'] = PROXY_SERVER
+    
+    # 加载协议特定的代理配置
+    from config import load_protocol_proxy_config, PROXY_CONFIG_PATH
+    proxy_configs = load_protocol_proxy_config(PROXY_CONFIG_PATH)
+    
+    if not proxy_configs:
+        return env
+    
+    # 处理通用代理设置
+    if 'all' in proxy_configs:
+        general_proxy = proxy_configs['all']
+        is_socks_proxy = general_proxy.lower().startswith(('socks4://', 'socks5://', 'socks://'))
+        
+        if is_socks_proxy:
+            # SOCKS通用代理配置
+            env['ALL_PROXY'] = general_proxy
+            env['all_proxy'] = general_proxy
+            env['SOCKS_PROXY'] = general_proxy
+            env['socks_proxy'] = general_proxy
+            env['HTTP_PROXY'] = general_proxy
+            env['HTTPS_PROXY'] = general_proxy
+            env['http_proxy'] = general_proxy
+            env['https_proxy'] = general_proxy
+        else:
+            # HTTP/HTTPS通用代理配置
+            env['HTTP_PROXY'] = general_proxy
+            env['HTTPS_PROXY'] = general_proxy
+            env['http_proxy'] = general_proxy
+            env['https_proxy'] = general_proxy
+            env['FTP_PROXY'] = general_proxy
+            env['ftp_proxy'] = general_proxy
+            env['ALL_PROXY'] = general_proxy
+            env['all_proxy'] = general_proxy
+        
+        env['WINGET_PROXY'] = general_proxy
+        env['PROXY'] = general_proxy
+        env['AUTOUPGRADE_PROXY_TYPE'] = 'SOCKS' if is_socks_proxy else 'HTTP'
+    
+    else:
+        # 协议特定的代理配置
+        proxy_types = []
+        
+        # HTTP代理
+        if 'http' in proxy_configs:
+            http_proxy = proxy_configs['http']
+            env['HTTP_PROXY'] = http_proxy
+            env['http_proxy'] = http_proxy
+            proxy_types.append('HTTP')
+        
+        # HTTPS代理
+        if 'https' in proxy_configs:
+            https_proxy = proxy_configs['https']
+            env['HTTPS_PROXY'] = https_proxy
+            env['https_proxy'] = https_proxy
+            proxy_types.append('HTTPS')
+        
+        # FTP代理
+        if 'ftp' in proxy_configs:
+            ftp_proxy = proxy_configs['ftp']
+            env['FTP_PROXY'] = ftp_proxy
+            env['ftp_proxy'] = ftp_proxy
+            proxy_types.append('FTP')
+        
+        # SOCKS代理
+        if 'socks' in proxy_configs:
+            socks_proxy = proxy_configs['socks']
+            env['ALL_PROXY'] = socks_proxy
+            env['all_proxy'] = socks_proxy
+            env['SOCKS_PROXY'] = socks_proxy
+            env['socks_proxy'] = socks_proxy
+            proxy_types.append('SOCKS')
+        
+        # winget代理设置（优先级：https > http > socks）
+        winget_proxy = (proxy_configs.get('https') or 
+                       proxy_configs.get('http') or 
+                       proxy_configs.get('socks'))
+        if winget_proxy:
+            env['WINGET_PROXY'] = winget_proxy
+            env['PROXY'] = winget_proxy
+        
+        # 设置代理类型标识
+        env['AUTOUPGRADE_PROXY_TYPE'] = '+'.join(proxy_types) if proxy_types else 'NONE'
+    
     return env
 
 def launch_app_by_id(appID: str) -> None:
@@ -332,8 +412,24 @@ def monitor_updates(dry_run: bool = False, once: bool = False) -> None:
         global PROXY_SERVER, CHECK_INTERVAL
         from config import PROXY_SERVER, CHECK_INTERVAL
         # 显示代理状态
-        if PROXY_SERVER:
-            output.info(LANG_PACK['proxy_enabled'].format(proxy=PROXY_SERVER))
+        from config import load_protocol_proxy_config, PROXY_CONFIG_PATH
+        proxy_configs = load_protocol_proxy_config(PROXY_CONFIG_PATH)
+        
+        if proxy_configs:
+            if 'all' in proxy_configs:
+                # 显示通用代理
+                output.info(LANG_PACK['proxy_enabled'].format(proxy=proxy_configs['all']))
+            else:
+                # 显示协议特定代理
+                proxy_info = []
+                for protocol in ['http', 'https', 'ftp', 'socks']:
+                    if protocol in proxy_configs:
+                        proxy_info.append(f"{protocol.upper()}={proxy_configs[protocol]}")
+                
+                if proxy_info:
+                    output.info(f"代理已启用 (协议特定) / Proxy Enabled (Protocol-specific): {', '.join(proxy_info)}")
+                else:
+                    output.info(LANG_PACK['proxy_disabled'])
         else:
             output.info(LANG_PACK['proxy_disabled'])
         # 显示检查间隔设置
