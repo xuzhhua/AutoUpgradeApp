@@ -175,131 +175,23 @@ def process_upgrade_item(appID: str, appVer: str, appNew: str, line: str, col_po
         # 获取包含代理设置的环境变量
         env = get_env_with_proxy()
         
-        # 使用更灵活的编码处理，避免线程编码错误
-        encoding_options = ['utf-8', 'gbk', 'cp936']
-        update_result = None
-        
-        for encoding in encoding_options:
-            try:
-                # 执行winget升级命令
-                update_result = subprocess.Popen([
-                    "winget", "upgrade", "--id", appID, "--source", "winget"
-                ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, 
-                encoding=encoding, env=env, bufsize=1, universal_newlines=True, errors='replace')
-                break  # 成功创建进程则跳出
-            except (UnicodeDecodeError, LookupError):
-                continue
-        
-        # 如果所有文本模式都失败，使用字节模式
-        if update_result is None:
-            update_result = subprocess.Popen([
-                "winget", "upgrade", "--id", appID, "--source", "winget"
-            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, bufsize=1)
-        
-        # 实时显示winget输出
+        # 执行winget升级命令，不显示输出，只检查退出代码
         output.info(LANG_PACK['realtime_upgrade_start'].format(appID=appID))
-        output.info(LANG_PACK['realtime_output_separator'] * 50)
         
-        stdout_lines = []
-        stderr_lines = []
+        update_result = subprocess.Popen([
+            "winget", "upgrade", "--id", appID, "--source", "winget"
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
         
-        # 文本模式检测：检查是否成功创建了带编码的文本模式进程
-        # 如果 update_result 不为 None，说明编码循环成功，即为文本模式
-        # 如果 update_result 为 None，会在前面创建字节模式进程
-        is_text_mode = (update_result is not None and 
-                       hasattr(update_result.stdout, 'encoding') and 
-                       getattr(update_result.stdout, 'encoding', None) is not None)
+        # 等待命令完成并获取退出代码
+        update_result.communicate()
+        exit_code = update_result.returncode
         
-        if is_text_mode:
-            # 文本模式的实时读取
-            while True:
-                try:
-                    stdout_line = update_result.stdout.readline()
-                    if stdout_line:
-                        clean_line = stdout_line.strip()
-                        if clean_line:
-                            print(f"  {clean_line}", flush=True)
-                            stdout_lines.append(stdout_line)
-                    
-                    # 检查进程是否结束
-                    if update_result.poll() is not None:
-                        try:
-                            remaining_stdout = update_result.stdout.read()
-                            if remaining_stdout:
-                                for line in remaining_stdout.splitlines():
-                                    clean_line = line.strip()
-                                    if clean_line:
-                                        print(f"  {clean_line}", flush=True)
-                                        stdout_lines.append(line + '\n')
-                        except Exception as read_error:
-                            output.error(LANG_PACK['realtime_read_remaining_error'].format(error=read_error))
-                        break
-                        
-                except Exception as readline_error:
-                    output.error(LANG_PACK['realtime_read_line_error'].format(error=readline_error))
-                    break
-        else:
-            # 字节模式的处理
-            try:
-                stdout_bytes, stderr_bytes = update_result.communicate()
-                # 尝试解码字节数据
-                for encoding in ['utf-8', 'gbk', 'cp936', 'latin1']:
-                    try:
-                        stdout_text = stdout_bytes.decode(encoding, errors='replace')
-                        stderr_text = stderr_bytes.decode(encoding, errors='replace')
-                        
-                        # 显示输出
-                        for line in stdout_text.splitlines():
-                            clean_line = line.strip()
-                            if clean_line:
-                                print(f"  {clean_line}", flush=True)
-                                stdout_lines.append(line + '\n')
-                        
-                        if stderr_text.strip():
-                            stderr_lines = stderr_text.splitlines()
-                        break
-                    except:
-                        continue
-            except Exception as comm_error:
-                output.error(f"通信错误: {comm_error}")
-        
-        # 读取stderr
-        if is_text_mode:
-            try:
-                stderr_output = update_result.stderr.read()
-                if stderr_output:
-                    stderr_lines = stderr_output.splitlines()
-                    # 如果有错误输出，也实时显示
-                    if stderr_lines:
-                        output.error(LANG_PACK['realtime_error_output'])
-                        for line in stderr_lines:
-                            if line.strip():
-                                print(f"  [ERROR] {line.strip()}", flush=True)
-            except Exception as stderr_error:
-                output.error(LANG_PACK['realtime_read_stderr_error'].format(error=stderr_error))
-        
-        output.info(LANG_PACK['realtime_output_separator'] * 50)
-        
-        # 合并所有输出用于后续判断
-        stdout = ''.join(stdout_lines) if stdout_lines else ""
-        stderr = ''.join(stderr_lines) if stderr_lines else ""
-        
-        if stderr:
-            output.error(LANG_PACK['error'].format(stderr=stderr))
-        elif stdout and any(s in stdout for s in LANG_PACK['upgrade_success_keywords']):
+        # 根据退出代码判断成功与否
+        if exit_code == 0:
             output.info(LANG_PACK['update_success'].format(appID=appID, appNew=appNew))
             launch_app_by_id(appID)
         else:
-            # 清理输出文本，移除进度字符和多余的空格
-            clean_output = stdout.strip() if stdout else ""
-            # 移除常见的进度指示符
-            clean_output = clean_output.replace('- ', '').replace('| ', '').replace('\\ ', '').replace('/ ', '')
-            # 移除多个连续的空格和换行符
-            clean_output = ' '.join(clean_output.split())
-            # 如果清理后的内容太短或只包含符号，使用通用错误信息
-            if len(clean_output) < 10 or clean_output.replace('-', '').replace('|', '').replace('\\', '').replace('/', '').strip() == '':
-                clean_output = LANG_PACK['upgrade_unknown_error']
-            output.error(LANG_PACK['update_fail'].format(appID=appID, stdout=clean_output))
+            output.error(LANG_PACK['update_fail'].format(appID=appID, stdout=LANG_PACK['upgrade_unknown_error']))
     except Exception as e:
         output.error(f"[EXCEPTION] {e}")
         output.error(traceback.format_exc())

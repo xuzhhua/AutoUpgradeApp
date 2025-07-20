@@ -1,10 +1,7 @@
-Docker Desktop
-NVIDIA
-Microsoft
-Anaconda.Miniconda3
-Google
-Node.js
-Apple
+*
 !Microsoft.VCRedist.2015+
 !Microsoft.VisualStudioCode
-python
+!Microsoft.PowerToys
+!chrome
+!ToEverything.AFFiNE
+!OpenJS.NodeJS
