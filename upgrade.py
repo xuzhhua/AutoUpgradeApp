@@ -39,7 +39,7 @@ import traceback
 import os
 from typing import List, Dict, Any
 from utils import substr_by_display_width, get_display_width, is_force_update_app, is_excluded_app
-from config import LANG_PACK, DEFAULT_EXCLUDED_APPS, EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS, SKIP_ALL_EXCEPT_FORCE, PROXY_SERVER, CHECK_INTERVAL
+from config import LANG_PACK, DEFAULT_EXCLUDED_APPS, EXCLUDED_APPS, FORCE_UPDATE_APPS, APP_PATHS, APP_ADMIN_FLAGS, SKIP_ALL_EXCEPT_FORCE, CHECK_INTERVAL
 import output
 import datetime
 import time
@@ -282,15 +282,13 @@ def process_upgrade_item(appID: str, appVer: str, appNew: str, line: str, col_po
         # 检查关键成功和失败的信息
         is_success = (exit_code == 0)
         
-        # 额外检查成功关键字
-        success_keywords = LANG_PACK.get('upgrade_success_keywords', 
-                           ['安装成功', 'Installer succeeded', 'インストールに成功',
-                            '已安装', '完成', '成功', 'successfully', 'complete', 'succeeded'])
-        
-        # 增加默认成功关键字
-        default_success_keywords = ['安装成功', 'Installer succeeded', 'インストールに成功',
+        # 检查成功关键字
+        success_keywords = ['安装成功', 'Installer succeeded', 'インストールに成功',
                             '已安装', '完成', '成功', 'successfully', 'complete', 'succeeded']
-        for keyword in default_success_keywords:
+        
+        # 添加LANG_PACK中的关键字
+        lang_success_keywords = LANG_PACK.get('upgrade_success_keywords', [])
+        for keyword in lang_success_keywords:
             if keyword not in success_keywords:
                 success_keywords.append(keyword)
         
@@ -308,11 +306,6 @@ def process_upgrade_item(appID: str, appVer: str, appNew: str, line: str, col_po
                           '没有可用的更新', 'No available update', '利用可能な更新はありません',
                           'No applicable update', 'No update', 'The installed is the latest']
         is_already_latest = any(keyword in stdout.lower() for keyword in latest_keywords)
-        
-        # 调试日志
-        debug_info = f"[DEBUG] appID={appID}, exit_code={exit_code}, is_actually_success={is_actually_success}, " \
-                    f"is_actually_failure={is_actually_failure}, is_already_latest={is_already_latest}"
-        output.info(debug_info)
         
         # 综合判断
         if is_actually_success or (exit_code == 0 and not is_actually_failure) or is_already_latest:
@@ -461,8 +454,8 @@ def monitor_updates(dry_run: bool = False, once: bool = False) -> None:
         # 重新加载配置，确保使用最新的排除和强制更新列表
         reload_config()
         # 更新全局变量
-        global PROXY_SERVER, CHECK_INTERVAL
-        from config import PROXY_SERVER, CHECK_INTERVAL
+        global CHECK_INTERVAL
+        from config import CHECK_INTERVAL
         # 显示代理状态
         from config import load_protocol_proxy_config, PROXY_CONFIG_PATH
         proxy_configs = load_protocol_proxy_config(PROXY_CONFIG_PATH)

@@ -33,7 +33,6 @@
 - **check_and_update_apps()**  
   使用 winget 检查可用更新。  
   跳过排除列表中的应用（除非在强制更新列表中），执行更新并记录结果。  
-  **新功能：实时显示winget升级过程的输出信息。**
 
 - **substr_by_display_width(s, start, length)**  
   按显示宽度截取字符串，兼容宽字符。
@@ -56,10 +55,19 @@
 
 1. 确保安装了 winget，并已配置好环境变量。
 2. 运行脚本需要管理员权限，以便执行更新操作。
-3. 根据需要调整 `update_policy.txt`、`lang.json`、`proxy.txt` 和 `check_interval.txt` 文件中的内容。
+- 根据需要调整 `update_policy.txt`、`lang.json`、`proxy.txt` 和 `check_interval.txt` 文件中的内容。
    特别是lang.json里英文与日文版的titles和all_latest的设定由于系统限制未经测试，请自行修改。
 4. 运行脚本时请保持网络连接，以便下载更新。
 5. 如果在中国大陆使用，可能需要使用魔法。
+
+## 输出简化
+
+本程序现已简化对winget输出的处理：
+
+- ✅ **简化输出处理**：不再显示详细的winget输出，只显示最终结果
+- ✅ **提高可靠性**：仅使用退出代码和关键输出来判断成功/失败状态
+- ✅ **更稳定的错误检测**：增强了对各种错误状态的识别能力
+- ✅ **跨语言兼容**：更好地支持中文、英文和日文环境下的状态判断
 
 ## update_policy.txt 使用说明
 
@@ -98,22 +106,37 @@ AppID4
 ### proxy.txt 配置格式
 
 ```text
-# 代理服务器配置文件
+# 代理服务器配置文件 - 支持协议特定配置
 # 格式支持以下几种：
-http://proxy.example.com:8080
-https://proxy.example.com:8080
-proxy.example.com:8080  # 自动添加 http://
 
-# 示例：
+# 1. 通用代理（所有协议使用同一代理）
+all=http://proxy.example.com:8080
+all=socks5://proxy.example.com:1080
+
+# 2. 协议特定代理
+http=http://http-proxy.example.com:8080
+https=https://https-proxy.example.com:8080
+ftp=http://ftp-proxy.example.com:8080
+socks=socks5://socks-proxy.example.com:1080
+
+# 3. 混合代理配置示例
+http=http://127.0.0.1:8080
+https=https://secure-proxy.company.com:3128
+socks=socks5://127.0.0.1:1080
+
+# 向后兼容格式（自动作为通用代理）
 http://127.0.0.1:8080
-192.168.1.100:8080
+192.168.1.100:8080  # 自动添加 http:// 前缀
 ```
 
 ### 代理配置说明
 
 - 如果不需要代理，删除 `proxy.txt` 文件或注释掉所有行即可。
-- 支持 HTTP 和 HTTPS 代理协议。
-- 如果只提供 `host:port` 格式，会自动添加 `http://` 前缀。
+- **新功能：协议特定代理**：支持为不同协议（http、https、ftp、socks）配置不同的代理服务器。
+- **通用代理**：使用 `all=` 前缀为所有协议设置统一代理。
+- **混合代理**：可同时为不同协议配置不同代理。
+- **兼容旧版**：仍支持不带前缀的旧格式配置（会自动作为通用代理）。
+- 支持 HTTP、HTTPS、FTP 和 SOCKS（SOCKS4/SOCKS5）代理协议。
 - 代理配置会应用于所有 winget 网络请求。
 - 配置更改后会在下次循环时自动重新加载。
 
@@ -146,43 +169,6 @@ http://127.0.0.1:8080
 - 支持小数，如 `1.5h`（1.5小时）或 `90m`（90分钟）。
 - 配置更改后会在下次循环时自动重新加载。
 - 建议最小间隔不少于30分钟，避免过于频繁的检查。
-
-## 实时显示功能
-
-**新功能：实时显示 winget 升级过程**
-
-应用升级时现在支持实时显示 winget 的输出信息，让用户能够即时了解升级进度和状态。
-
-### 实时显示特性
-
-- ✅ **实时输出**: 升级过程中实时显示 winget 的所有输出信息
-- ✅ **多语言支持**: 支持中文、英文、日文的实时输出标识
-- ✅ **错误处理**: 智能处理编码问题和异常情况
-- ✅ **保持兼容**: 保持原有功能的完整性，不影响现有逻辑
-- ✅ **清晰格式**: 使用分隔线和缩进清晰地标识实时输出内容
-
-### 实时显示示例
-
-```
-开始升级 Microsoft.VisualStudioCode，实时输出如下：
-==================================================
-  Found Microsoft Visual Studio Code [Microsoft.VisualStudioCode] Version 1.85.0
-  This application is licensed to you by its owner.
-  Downloading https://github.com/microsoft/vscode/releases/download/1.85.1/VSCodeSetup-x64-1.85.1.exe
-  ██████████████████████████████  32.0 MB / 32.0 MB
-  Successfully verified installer hash
-  Starting package install...
-  Successfully installed
-==================================================
-更新成功: Microsoft.VisualStudioCode [1.85.1]
-```
-
-### 技术实现
-
-- 使用 `subprocess.Popen` 创建非阻塞进程
-- 通过 `readline()` 实时读取输出流
-- 自动处理 Windows 系统的 GBK 编码
-- 智能错误处理和异常捕获
 
 ## 命令行参数与高级用法
 

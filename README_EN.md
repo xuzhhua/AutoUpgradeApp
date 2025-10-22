@@ -33,7 +33,6 @@ The script is designed to run continuously, checking for updates every 24 hours.
 - **check_and_update_apps()**  
   Uses winget to check for available updates.  
   Skips apps in the exclusion list (unless in the force-update list), performs updates, and logs results.  
-  **New Feature: Real-time display of winget upgrade process output.**
 
 - **substr_by_display_width(s, start, length)**  
   Extracts substrings by display width, compatible with wide characters.
@@ -60,6 +59,15 @@ The script is designed to run continuously, checking for updates every 24 hours.
    Especially, the `titles` and `all_latest` settings for English and Japanese in lang.json are untested due to system limitations—please modify as necessary.
 4. Keep your network connected while running the script to download updates.
 5. If using in mainland China, magic may be required for special reasons.
+
+## Output Simplification
+
+The program has now simplified winget output processing:
+
+- ✅ **Simplified Output Processing**: No longer displays detailed winget output, shows only final results
+- ✅ **Improved Reliability**: Uses only exit codes and key outputs to determine success/failure status
+- ✅ **More Stable Error Detection**: Enhanced ability to identify various error states
+- ✅ **Cross-language Compatibility**: Better support for status determination in Chinese, English, and Japanese environments
 
 ## update_policy.txt Usage
 
@@ -98,15 +106,42 @@ If you need to access the network through a proxy server, you can create a `prox
 ### proxy.txt Configuration Format
 
 ```text
-# Proxy server configuration file
-# Supports the following formats:
-http://proxy.example.com:8080
-https://proxy.example.com:8080
-proxy.example.com:8080  # Automatically adds http://
+### proxy.txt Configuration Format
 
-# Examples:
+```text
+# Proxy server configuration file - Protocol-specific Support
+# Supported formats:
+
+# 1. General proxy (applies to all protocols)
+all=http://proxy.example.com:8080
+all=socks5://proxy.example.com:1080
+
+# 2. Protocol-specific proxies
+http=http://http-proxy.example.com:8080
+https=https://https-proxy.example.com:8080
+ftp=http://ftp-proxy.example.com:8080
+socks=socks5://socks-proxy.example.com:1080
+
+# 3. Mixed proxy configuration example
+http=http://127.0.0.1:8080
+https=https://secure-proxy.company.com:3128
+socks=socks5://127.0.0.1:1080
+
+# Backward compatible format (treated as general proxy)
 http://127.0.0.1:8080
-192.168.1.100:8080
+192.168.1.100:8080  # automatically adds http:// prefix
+```
+
+### Proxy Configuration Notes
+
+- If no proxy is needed, delete the `proxy.txt` file or comment out all lines.
+- **New Feature: Protocol-specific proxies**: Support for configuring different proxy servers for different protocols (http, https, ftp, socks).
+- **General proxy**: Use the `all=` prefix to set a uniform proxy for all protocols.
+- **Mixed proxies**: Can configure different proxies for different protocols simultaneously.
+- **Backward compatible**: Still supports old format configuration without prefix (automatically treated as a general proxy).
+- Supports HTTP, HTTPS, FTP, and SOCKS (SOCKS4/SOCKS5) proxy protocols.
+- Proxy configuration applies to all winget network requests.
+- Configuration changes will be automatically reloaded at the next check cycle.
 ```
 
 ### Proxy Configuration Notes
@@ -146,43 +181,6 @@ You can customize the update check time interval through the `check_interval.txt
 - Supports decimals, such as `1.5h` (1.5 hours) or `90m` (90 minutes).
 - Configuration changes will be automatically reloaded in the next cycle.
 - It is recommended that the minimum interval be no less than 30 minutes to avoid overly frequent checks.
-
-## Real-time Display Feature
-
-**New Feature: Real-time winget Upgrade Process Display**
-
-The application now supports real-time display of winget output information during upgrades, allowing users to immediately understand upgrade progress and status.
-
-### Real-time Display Features
-
-- ✅ **Real-time Output**: Display all winget output information in real-time during the upgrade process
-- ✅ **Multi-language Support**: Support real-time output indicators in Chinese, English, and Japanese
-- ✅ **Error Handling**: Intelligent handling of encoding issues and exception conditions
-- ✅ **Maintain Compatibility**: Maintain the integrity of existing functionality without affecting existing logic
-- ✅ **Clear Format**: Use separators and indentation to clearly identify real-time output content
-
-### Real-time Display Example
-
-```
-Starting upgrade for Microsoft.VisualStudioCode, real-time output:
-==================================================
-  Found Microsoft Visual Studio Code [Microsoft.VisualStudioCode] Version 1.85.0
-  This application is licensed to you by its owner.
-  Downloading https://github.com/microsoft/vscode/releases/download/1.85.1/VSCodeSetup-x64-1.85.1.exe
-  ██████████████████████████████  32.0 MB / 32.0 MB
-  Successfully verified installer hash
-  Starting package install...
-  Successfully installed
-==================================================
-Update success: Microsoft.VisualStudioCode [1.85.1]
-```
-
-### Technical Implementation
-
-- Use `subprocess.Popen` to create non-blocking processes
-- Real-time reading of output streams through `readline()`
-- Automatically handle GBK encoding on Windows systems
-- Intelligent error handling and exception catching
 
 ## Command Line Arguments and Advanced Usage
 
