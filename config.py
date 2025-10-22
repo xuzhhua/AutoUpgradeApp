@@ -42,6 +42,7 @@ def load_lang_pack() -> Dict[str, Any]:
             "error": "错误信息: {stderr}",
             "file_not_found": "文件 {file_path} 不存在，使用默认排除列表。",
             "update_done": "于{nowtime}完成更新处理，下一次将在24小时后检查更新。",
+            "update_done_custom": "于{nowtime}完成更新处理，下一次将在{interval}后检查更新。",
             "require_admin": "请以管理员身份运行此脚本！",
             "press_enter_exit": "按回车键退出...",
             "launch_app": "启动应用: {app_path}",
@@ -51,7 +52,19 @@ def load_lang_pack() -> Dict[str, Any]:
             "arg_once": "只执行一次升级检查，不进入循环",
             "app_description": "AutoUpgradeApp - winget 自动升级工具",
             "upgrade_success_keywords": ["成功", "已成功", "已升级", "已完成"],
-            "update_fail": "检测到更新失败: {appID}，winget 输出: {stdout}"
+            "update_fail": "检测到更新失败: {appID}，winget 输出: {stdout}",
+            "proxy_enabled": "已启用代理服务器: {proxy}",
+            "proxy_disabled": "未设置代理服务器，使用直连",
+            "upgrade_unknown_error": "升级过程中遇到未知错误，请查看winget日志获取详情",
+            "check_interval_loaded": "检查间隔设置: {interval}",
+            "realtime_upgrade_start": "开始升级 {appID}",
+            "realtime_output_separator": "=",
+            "realtime_error_output": "错误输出:",
+            "realtime_read_remaining_error": "读取剩余输出时出错: {error}",
+            "realtime_read_line_error": "读取实时输出时出错: {error}",
+            "realtime_read_stderr_error": "读取错误输出时出错: {error}",
+            "encoding_fallback_warning": "编码处理失败，使用备用方案",
+            "winget_command_failed": "无法执行winget命令: {error}"
         }
     with open(LANG_CONFIG_PATH, 'r', encoding='utf-8') as f:
         lang_dict = json.load(f)

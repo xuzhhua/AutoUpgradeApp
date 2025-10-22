@@ -255,23 +255,75 @@ def process_upgrade_item(appID: str, appVer: str, appNew: str, line: str, col_po
         # 获取包含代理设置的环境变量
         env = get_env_with_proxy()
         
-        # 执行winget升级命令，不显示输出，只检查退出代码
+        # 执行winget升级命令，获取输出内容和退出代码
         output.info(LANG_PACK['realtime_upgrade_start'].format(appID=appID))
         
         update_result = subprocess.Popen([
             "winget", "upgrade", "--id", appID, "--source", "winget"
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
         
-        # 等待命令完成并获取退出代码
-        update_result.communicate()
+        # 等待命令完成并获取输出和退出代码
+        stdout_bytes, stderr_bytes = update_result.communicate()
         exit_code = update_result.returncode
         
-        # 根据退出代码判断成功与否
-        if exit_code == 0:
+        # 尝试解码输出
+        encoding_options = ['utf-8', 'gbk', 'cp936', 'latin1']
+        stdout = ""
+        stderr = ""
+        
+        for encoding in encoding_options:
+            try:
+                stdout = stdout_bytes.decode(encoding, errors='replace')
+                stderr = stderr_bytes.decode(encoding, errors='replace')
+                break
+            except:
+                continue
+        
+        # 检查关键成功和失败的信息
+        is_success = (exit_code == 0)
+        
+        # 额外检查成功关键字
+        success_keywords = LANG_PACK.get('upgrade_success_keywords', 
+                           ['安装成功', 'Installer succeeded', 'インストールに成功',
+                            '已安装', '完成', '成功', 'successfully', 'complete', 'succeeded'])
+        
+        # 增加默认成功关键字
+        default_success_keywords = ['安装成功', 'Installer succeeded', 'インストールに成功',
+                            '已安装', '完成', '成功', 'successfully', 'complete', 'succeeded']
+        for keyword in default_success_keywords:
+            if keyword not in success_keywords:
+                success_keywords.append(keyword)
+        
+        # 额外检查失败关键字
+        failure_keywords = ['失败', '错误', 'failed', 'error', 'failed to install', '安装失败', 
+                            'installed failed', '0x80', '0x8', 'interruption', '被中断', 
+                            'インストールに失敗', 'エラー']
+        
+        # 覆盖判断条件，结合关键字和退出代码
+        is_actually_success = any(keyword in stdout.lower() for keyword in success_keywords) and exit_code == 0
+        is_actually_failure = any(keyword in stdout.lower() for keyword in failure_keywords) or exit_code != 0
+        
+        # 解决'已是最新'的情况 (已是最新版本也视为成功)
+        latest_keywords = ['已是最新', '已经是最新', 'already installed', 'already up to date', '最新のバージョン', 
+                          '没有可用的更新', 'No available update', '利用可能な更新はありません',
+                          'No applicable update', 'No update', 'The installed is the latest']
+        is_already_latest = any(keyword in stdout.lower() for keyword in latest_keywords)
+        
+        # 调试日志
+        debug_info = f"[DEBUG] appID={appID}, exit_code={exit_code}, is_actually_success={is_actually_success}, " \
+                    f"is_actually_failure={is_actually_failure}, is_already_latest={is_already_latest}"
+        output.info(debug_info)
+        
+        # 综合判断
+        if is_actually_success or (exit_code == 0 and not is_actually_failure) or is_already_latest:
             output.info(LANG_PACK['update_success'].format(appID=appID, appNew=appNew))
             launch_app_by_id(appID)
         else:
-            output.error(LANG_PACK['update_fail'].format(appID=appID, stdout=LANG_PACK['upgrade_unknown_error']))
+            # 提供更详细的错误信息
+            error_details = stderr if stderr.strip() else stdout
+            if not error_details.strip():
+                error_details = LANG_PACK['upgrade_unknown_error']
+            output.error(LANG_PACK['update_fail'].format(appID=appID, stdout=error_details))
     except Exception as e:
         output.error(f"[EXCEPTION] {e}")
         output.error(traceback.format_exc())
